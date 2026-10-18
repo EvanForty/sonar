@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sonar: scan the depths, detect the signal, launch the coin</title>
+<meta name="description" content="Sonar is a Solana launchpad of autonomous sonar station NFTs that detect narratives, launch coins on pump.fun and turn every detection into a tradable Signal NFT.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<meta name="theme-color" content="#03264B">
+<meta property="og:title" content="Sonar: scan the depths, detect the signal, launch the coin">
+<meta property="og:description" content="A Solana launchpad of autonomous sonar stations that detect narratives, launch coins on pump.fun and turn every detection into a tradable Signal NFT.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<style>
+:root{
+  --bg:#EAF1F8;--panel:#FFFFFF;--ink:#05284F;--soft:#2E4D76;--mute:#5F7DA3;--rule:#D2DEEC;--hull:#05284F;--edge:#05284F;--frame:#05284F;
+  --cy:#00B7DA;--cy-ink:#007A99;--grid:rgba(5,40,79,.05);--stripe:rgba(5,40,79,.04);
+  --f-head:'Chakra Petch','Arial Narrow',sans-serif;
+  --f-ui:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#03264B;--panel:#08305C;--ink:#FFFFFF;--soft:#C3D5EC;--mute:#86A3C8;--rule:#1D4C81;--hull:#FFFFFF;--edge:#FFFFFF;--frame:#2D5E97;
+    --cy:#14DDF7;--cy-ink:#4BE7FA;--grid:rgba(255,255,255,.035);--stripe:rgba(255,255,255,.045);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#03264B;--panel:#08305C;--ink:#FFFFFF;--soft:#C3D5EC;--mute:#86A3C8;--rule:#1D4C81;--hull:#FFFFFF;--edge:#FFFFFF;--frame:#2D5E97;
+  --cy:#14DDF7;--cy-ink:#4BE7FA;--grid:rgba(255,255,255,.035);--stripe:rgba(255,255,255,.045);color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background-color:var(--bg);color:var(--ink);font:400 15.5px/1.55 var(--f-ui);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px dashed var(--cy-ink);outline-offset:3px}
+.wrap{max-width:1420px;margin:0 auto;padding:16px}
+.panel{background:var(--panel);border:1.5px solid var(--frame)}
+.ph{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0;padding:13px 18px;border-bottom:1px solid var(--rule);font:600 12px/1.2 var(--f-mono);letter-spacing:.07em;text-transform:uppercase}
+.ph small{font-weight:400;color:var(--mute);letter-spacing:.04em}
+.ph .pix,.ph .mini{height:18px;width:auto}
+.ph .end{margin-left:auto}
+.pad{padding:18px}
+.tag{display:inline-block;font:600 11px/1 var(--f-mono);letter-spacing:.05em;padding:5px 7px;background:var(--ink);color:var(--bg);text-transform:uppercase}
+.tag.cy{background:var(--cy);color:#032447}
+.tag.ghost{background:transparent;color:var(--soft);border:1px solid var(--rule)}
+.pix rect{fill:var(--hull)} .pix .c{fill:var(--cy)}
+.hull{fill:var(--hull)} .cyf{fill:var(--cy)} .idle{fill:var(--mute)} .m{fill:var(--mute)} .rulef{fill:var(--rule)}
+.small{font-size:13px;color:var(--soft)}
+.warn{color:#B42318}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .warn{color:#FF9B8C}}
+:root[data-theme="dark"] .warn{color:#FF9B8C}
+
+/* header */
+.top{margin-bottom:16px}
+.nav{display:grid;grid-template-columns:auto 1fr auto}
+.brand{display:flex;align-items:center;gap:12px;padding:10px 20px;border-right:1px solid var(--rule);text-decoration:none}
+.brand .mini{height:40px;width:70px;flex:none}
+.brand b{display:block;font:700 30px/.9 var(--f-head);letter-spacing:.04em;text-transform:uppercase}
+.brand small{display:block;margin-top:6px;font:500 11px/1 var(--f-mono);color:var(--mute);letter-spacing:.05em}
+.tabs{display:grid;grid-template-columns:repeat(8,minmax(90px,1fr));overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:15px 8px 12px;border-right:1px solid var(--rule);text-decoration:none;color:var(--soft);font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.tabs a em{position:absolute;top:7px;right:8px;font-style:normal;color:var(--mute);font-size:10px}
+.tabs a .pix{height:22px;width:auto} .tabs a .mini{height:22px;width:38px}
+.tabs a:hover{background:var(--stripe)}
+.tabs a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -4px 0 var(--cy)}
+.walletcell{position:relative;display:flex;align-items:center;padding:12px 18px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font:700 14px/1 var(--f-ui);letter-spacing:.01em;border:1.5px solid var(--edge);background:var(--panel);color:var(--ink);padding:12px 16px;cursor:pointer;box-shadow:3px 3px 0 var(--edge);text-decoration:none;white-space:nowrap}
+.btn:active:not([disabled]){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+.btn.cy{background:var(--cy);color:#032447;border-color:#032447}
+.btn.dark{background:var(--ink);color:var(--bg)}
+.btn.sm{padding:8px 11px;font-size:12.5px;box-shadow:2px 2px 0 var(--edge)}
+.btn.wide{width:100%;padding:19px;font-size:16px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn .dot{width:9px;height:9px;background:#032447;display:inline-block}
+.btn.connected .dot{background:var(--cy);outline:1.5px solid var(--edge)}
+.chip{font:600 11px/1 var(--f-mono);letter-spacing:.03em;border:1.5px solid var(--edge);background:var(--panel);padding:7px 10px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--cy);color:#032447;border-color:#032447}
+.link{font:700 13px/1 var(--f-ui);border:0;background:none;padding:3px 0;border-bottom:3px solid var(--cy);cursor:pointer;text-decoration:none}
+
+/* scope page */
+.grid-hero{display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:16px;align-items:start}
+.col{display:grid;gap:16px;align-content:start;min-width:0}
+label,.lbl{display:block;font:500 11px/1.2 var(--f-mono);color:var(--soft);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.big{display:flex;align-items:baseline;gap:10px;margin:14px 0 6px}
+.big b{font:700 104px/.85 var(--f-head);letter-spacing:-.02em}
+.big span{font:600 30px var(--f-head);color:var(--mute)}
+.ticks{display:flex;gap:2px;height:16px;margin:6px 0 18px}
+.ticks i{flex:1;background:var(--rule)} .ticks i.on{background:var(--hull)} .ticks i.last{background:var(--cy)}
+.kv4{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);margin-bottom:18px}
+.kv4>div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.kv4>div:nth-child(2n){border-right:0}
+.kv4>div:nth-last-child(-n+2){border-bottom:0}
+.kv4 b{font:500 17px/1.2 var(--f-mono)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:center}
+.hero .ph{grid-column:1 / -1}
+.hero-copy{padding:28px 10px 28px 30px}
+h1{font:700 clamp(38px,4.4vw,64px)/.95 var(--f-head);text-transform:uppercase;letter-spacing:.005em;margin:0 0 16px}
+h1 em{font-style:normal;color:var(--cy-ink)}
+.hero-copy p{font-size:17px;max-width:46ch;color:var(--soft);margin:0 0 20px}
+.legend{display:grid;gap:9px;font:500 12.5px var(--f-mono);color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:9px}
+.legend i{width:11px;height:11px;display:inline-block}
+.scopewrap{padding:20px 22px 20px 6px}
+.scope{display:block;width:100%;height:auto;max-width:600px;margin:0 auto;border-radius:50%}
+.scope .bgc{fill:#04223F}
+.scope .ring{fill:none;stroke:#1E5F8E;stroke-width:.6}
+.scope .ring.outer{stroke:#3FC9E6;stroke-width:1}
+.scope .axis{stroke:#16496F;stroke-width:.4}
+.scope .rl{font:600 4px var(--f-mono);fill:#8FC3E0;letter-spacing:.06em}
+.scope .sweep{transform-origin:100px 100px;animation:sweep 7s linear infinite}
+.scope .wedge{fill:#14DDF7;opacity:.16}
+.scope .arm{stroke:#14DDF7;stroke-width:.8}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.scope .b-live{fill:#14DDF7} .scope .b-dead{fill:#2F6E99} .scope .b-grad{fill:#FFFFFF;stroke:#14DDF7;stroke-width:.8} .scope .b-sig{fill:none;stroke:#FFFFFF;stroke-width:.6}
+.scope .sub-w{fill:#FFFFFF} .scope .sub-c{fill:#14DDF7}
+.scope rect{cursor:help}
+.kv2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.kv2>div{padding:14px 18px}
+.kv2>div+div{border-left:1px solid var(--rule)}
+.kv2 b{font:700 24px/1.1 var(--f-head);text-transform:uppercase;overflow-wrap:anywhere}
+.btnrow{display:flex;gap:12px;padding:18px;border-top:1px solid var(--rule)}
+.btnrow .btn{flex:1}
+.feed{display:grid;grid-template-columns:repeat(6,1fr)}
+.feed>div{padding:18px 14px;text-align:center;border-right:1px solid var(--rule)}
+.feed>div:last-child{border-right:0}
+.feed .st{width:104px;height:auto;margin:0 auto 10px;display:block}
+.feed b{display:block;font:700 20px var(--f-head)}
+.feed p{margin:2px 0 6px;font-size:13px;color:var(--soft);line-height:1.35}
+.ago{font:500 11px var(--f-mono);color:var(--mute);letter-spacing:.04em;text-transform:uppercase}
+.empty{padding:28px 20px;color:var(--soft);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.empty .mini{height:40px;width:70px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr)}
+.steps>div{padding:20px 18px 24px;border-right:1px solid var(--rule)}
+.steps>div:last-child{border-right:0}
+.steps .pix{height:36px;width:auto;margin-bottom:14px} .steps .mini{height:36px;width:63px;margin-bottom:14px}
+.steps .n{display:block;font:500 12px var(--f-mono);color:var(--cy-ink);margin-bottom:6px}
+.steps h3{margin:0 0 6px;font:700 21px/1.1 var(--f-head);text-transform:uppercase}
+.steps p{margin:0;color:var(--soft);font-size:14.5px}
+.mt{margin-top:16px}
+
+/* station svg */
+.st .tierbar{fill:var(--rule)} .st .tieron{fill:var(--cy)}
+
+/* deploy */
+.grid-2{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+.step h3{font:700 28px/1.05 var(--f-head);text-transform:uppercase;margin:0 0 8px}
+.step p{margin:0 0 16px;color:var(--soft);max-width:68ch}
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt{text-align:left;border:1.5px solid var(--edge);background:var(--panel);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.opt[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--cy),4px 4px 0 var(--edge)}
+.opt b{font:700 20px/1.05 var(--f-head);text-transform:uppercase;margin-top:8px}
+.opt>span{color:var(--soft);font-size:14px}
+.opt dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:12px 0 0;font:500 12px var(--f-mono)}
+.opt dt{color:var(--mute)} .opt dd{margin:0;text-align:right}
+.dg{width:24px;height:24px} .dg .on{fill:var(--cy)} .dg .off{fill:none;stroke:var(--mute);stroke-width:.4}
+.note{font-size:13.5px;color:var(--soft);margin:14px 0 0;padding-left:12px;border-left:3px solid var(--cy)}
+.youget{display:flex;gap:18px;align-items:center;padding:18px}
+.youget .frame{border:1px solid var(--rule);padding:10px;width:150px;flex:none}
+.youget .st{width:100%;height:auto;display:block}
+.youget b{display:block;font:700 40px/1 var(--f-head)}
+.youget span{color:var(--soft);font-size:14px}
+.rows>div{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.rows>div:last-child{border-bottom:0}
+.rows label{margin:0}
+.rows b{font:500 15px var(--f-mono);text-align:right}
+
+/* market + fleet + signals */
+.filters{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding:16px 18px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg>span{font:500 11px var(--f-mono);color:var(--mute);letter-spacing:.05em;text-transform:uppercase;margin-right:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.card{border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:none;padding:18px 12px 14px;cursor:pointer;text-align:center}
+.card:hover{background:var(--stripe)}
+.card .st{width:110px;height:auto;display:block;margin:0 auto 10px}
+.card b{display:block;font:700 20px var(--f-head)}
+.card .meta{font-size:12.5px;color:var(--soft)}
+.you{display:inline-block;margin-left:5px;vertical-align:3px}
+.more{padding:16px;text-align:center}
+.lists{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.lcard{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;padding:16px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.lcard .st{width:110px;height:auto;display:block}
+.lcard h4{margin:0 0 6px;font:700 24px/1 var(--f-head);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lcard dl,.sig dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0 0 12px;font:500 11.5px var(--f-mono)}
+.lcard dt,.sig dt{color:var(--mute)} .lcard dd,.sig dd{margin:0;text-align:right}
+.lcard .btn{width:100%;white-space:normal;line-height:1.25;text-align:center}
+.aucs{display:grid;grid-template-columns:minmax(0,1fr)}
+.auc{padding:18px;border-right:1px solid var(--rule)}
+.auc:last-child{border-right:0}
+.auc .top2{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.auc .st{width:100px;height:auto}
+.auc h4{margin:0;font:700 24px/1 var(--f-head)}
+.bid{font:700 38px/1 var(--f-head);margin:2px 0 4px}
+.bid small{font:500 13px var(--f-mono);color:var(--soft)}
+.sigs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.sig{padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column}
+.sig h4{margin:0 0 4px;font:700 26px/1 var(--f-head);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sig .desc{font-size:13.5px;color:var(--soft);margin:0 0 12px;min-height:2.6em}
+.meter{display:flex;gap:2px;margin:0 0 4px}
+.meter i{flex:1;height:10px;background:var(--rule)} .meter i.on{background:var(--cy)}
+.sig .btns{margin-top:auto}
+
+/* stations */
+.kv5{display:grid;grid-template-columns:repeat(5,1fr)}
+.kv5>div{padding:16px 18px;border-right:1px solid var(--rule)}
+.kv5>div:last-child{border-right:0}
+.kv5 b{display:block;font:500 21px/1.2 var(--f-mono)}
+.kv5 b.g{color:var(--cy-ink)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;padding:18px;border-top:1px solid var(--rule)}
+.strow{display:grid;grid-template-columns:170px minmax(0,1fr) minmax(0,1.15fr);border-top:1px solid var(--rule)}
+.strow:first-of-type{border-top:0}
+.strow>div{padding:18px}
+.strow>div+div{border-left:1px solid var(--rule)}
+.strow .st{width:100%;height:auto;display:block}
+.strow h3{margin:0 0 8px;font:700 32px/1 var(--f-head);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin:10px 0 14px}
+.stats b{display:block;font:500 15px var(--f-mono)}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.up{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--rule)}
+.up:last-child{border-bottom:0}
+.up b{font:700 14.5px var(--f-ui)}
+.up small{grid-column:1;font-size:12.5px;color:var(--soft)}
+.up .btn{grid-row:1 / span 2;grid-column:2}
+.pips{display:inline-flex;gap:3px;margin-left:8px;vertical-align:1px}
+.pips i{width:9px;height:9px;border:1px solid var(--edge);display:inline-block}
+.pips i.on{background:var(--cy)}
+.rentbox{border:1px solid var(--rule);padding:12px 14px;margin-bottom:12px;background:var(--stripe)}
+.rentbox b{display:block;font:700 14.5px var(--f-ui);margin-bottom:2px}
+.rentbox p{margin:0 0 10px;font-size:13px;color:var(--soft)}
+
+/* how */
+.split{padding:22px 22px 6px}
+.squares{display:grid;grid-template-columns:repeat(50,1fr);gap:2px}
+.squares i{aspect-ratio:1;display:block}
+.sq-a{background:var(--cy)} .sq-b{background:var(--hull)} .sq-c{background:var(--mute);opacity:.5}
+.splitkeys{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);margin-top:18px}
+.splitkeys>div{padding:16px 22px;border-right:1px solid var(--rule)}
+.splitkeys>div:last-child{border-right:0}
+.splitkeys .k{display:flex;gap:8px;align-items:center;font:700 15px var(--f-ui)}
+.splitkeys .k i{width:13px;height:13px;display:inline-block}
+.splitkeys b{display:block;font:700 56px/1 var(--f-head);margin:8px 0 4px}
+.splitkeys p{margin:0;color:var(--soft);font-size:14px}
+.fly{padding:10px 18px 18px}
+.fly svg{display:block;width:100%;height:auto;max-width:900px;margin:0 auto}
+.fly .ringe{fill:none;stroke:var(--mute);stroke-width:1.5;stroke-dasharray:5 5}
+.fly .node rect{fill:var(--panel);stroke:var(--edge);stroke-width:1.5}
+.fly .node.hot rect{fill:var(--cy);stroke:#032447}
+.fly .node text{font:600 13px var(--f-ui);fill:var(--ink)}
+.fly .node.hot text{fill:#032447}
+.fly .arr{fill:var(--mute)}
+.fly ol{display:none;margin:0;padding:0 0 0 22px}
+.fly ol li{padding:6px 0;font-weight:600}
+.pbody{padding:18px 22px}
+.pbody p{margin:0 0 10px;color:var(--soft)}
+.pbody p:last-child{margin:0}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font:500 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--soft);text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--stripe)}
+td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;font-family:var(--f-mono)}
+.tw{overflow-x:auto}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+
+/* docs */
+.docs{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.toc ol{list-style:none;margin:0;padding:8px 18px 14px}
+.toc li button{display:flex;gap:14px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:10px 0;cursor:pointer;font-size:14.5px}
+.toc li button span{font:500 11px var(--f-mono);color:var(--mute);padding-top:3px}
+.doc{scroll-margin-top:16px}
+.doc .body{padding:20px 24px 24px;max-width:80ch}
+.doc .body p,.doc .body li{color:var(--soft)}
+.doc .body strong{color:var(--ink)}
+.doc .body h4{font:700 20px var(--f-head);text-transform:uppercase;margin:20px 0 6px}
+.doc code{font:500 12.5px var(--f-mono);background:var(--stripe);padding:2px 5px}
+.doc .tw{margin:12px 0;border:1px solid var(--rule)}
+details{border-bottom:1px solid var(--rule)}
+details summary{cursor:pointer;padding:13px 0;font-weight:700;list-style:none}
+details summary::before{content:"▸";display:inline-block;width:18px;font-size:12px}
+details[open] summary::before{content:"▾"}
+details p{margin:0 0 14px 18px}
+
+/* overlays */
+.scrim{position:fixed;inset:0;background:rgba(2,18,38,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{max-width:640px;width:100%;max-height:calc(100% - 32px);overflow:auto;box-shadow:6px 6px 0 var(--cy)}
+.modal.wide{max-width:880px}
+.x{margin-left:auto;background:none;border:0;font:700 18px var(--f-mono);cursor:pointer;padding:0 4px}
+.wlist{display:grid;gap:10px;padding:18px}
+.wopt{display:flex;align-items:center;gap:14px;border:1.5px solid var(--edge);background:var(--panel);padding:12px 14px;cursor:pointer;text-align:left;font:700 15px var(--f-ui);text-decoration:none}
+.wopt img,.wopt .ph-ico{width:28px;height:28px;flex:none}
+.wopt .ph-ico{background:var(--mute)}
+.wopt em{margin-left:auto;font:500 11px var(--f-mono);font-style:normal;color:var(--cy-ink);text-transform:uppercase;letter-spacing:.05em}
+.wopt:hover{background:var(--stripe)}
+.menu{position:absolute;right:18px;top:calc(100% - 4px);z-index:40;min-width:260px;box-shadow:4px 4px 0 var(--cy)}
+.menu .rows>div{padding:12px 16px}
+.mitems{display:grid;border-top:1px solid var(--rule)}
+.mitems button,.mitems a{text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:12px 16px;cursor:pointer;font:600 14px var(--f-ui);text-decoration:none}
+.mitems>*:last-child{border-bottom:0}
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;z-index:60;max-width:min(380px,calc(100% - 32px))}
+.toast{background:var(--ink);color:var(--bg);padding:12px 16px;font:500 14px var(--f-ui);box-shadow:4px 4px 0 var(--cy)}
+footer{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;padding:22px 2px 36px;font-size:13px;color:var(--soft)}
+
+@media (max-width:1200px){
+  .grid-hero{grid-template-columns:minmax(0,1fr)}
+  .grid-hero>.hero{order:-1}
+  .grid-2{grid-template-columns:minmax(0,1fr)}
+  .opts{grid-template-columns:1fr 1fr}
+  .feed{grid-template-columns:repeat(3,1fr)}
+  .feed>div:nth-child(3n){border-right:0}
+  .feed>div:nth-child(-n+3){border-bottom:1px solid var(--rule)}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps>div{border-bottom:1px solid var(--rule)}
+  .strow{grid-template-columns:150px minmax(0,1fr)}
+  .strow>div:last-child{grid-column:1 / -1;border-left:0;border-top:1px solid var(--rule)}
+  .docs{grid-template-columns:minmax(0,1fr)}
+  .toc{position:static}
+  .aucs{grid-template-columns:1fr}
+  .auc{border-right:0;border-bottom:1px solid var(--rule)}
+  .kv5{grid-template-columns:repeat(3,1fr)}
+  .kv5>div:nth-child(3){border-right:0}
+  .kv5>div:nth-child(-n+3){border-bottom:1px solid var(--rule)}
+}
+@media (max-width:1100px){
+  .nav{grid-template-columns:1fr auto}
+  .brand{border-right:0}
+  .tabs{grid-column:1 / -1;grid-row:2;display:flex;border-top:1px solid var(--rule)}
+  .tabs a{flex:1 0 92px}
+}
+@media (max-width:760px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-copy{padding:24px 20px 6px}
+  .scopewrap{padding:10px 16px 22px}
+  .scope .rl{display:none}
+}
+@media (max-width:700px){
+  .wrap{padding:10px}
+  .opts,.opts.two,.two{grid-template-columns:1fr}
+  .feed{grid-template-columns:1fr 1fr}
+  .feed>div{border-bottom:1px solid var(--rule)}
+  .feed>div:nth-child(2n){border-right:0}
+  .feed>div:nth-child(3n){border-right:1px solid var(--rule)}
+  .feed>div:nth-child(6n){border-right:0}
+  .steps{grid-template-columns:1fr}
+  .steps>div{border-right:0}
+  .kv5{grid-template-columns:1fr 1fr}
+  .kv5>div{border-right:1px solid var(--rule)!important;border-bottom:1px solid var(--rule)}
+  .kv5>div:nth-child(2n){border-right:0!important}
+  .splitkeys{grid-template-columns:1fr}
+  .splitkeys>div{border-right:0;border-bottom:1px solid var(--rule)}
+  .squares{grid-template-columns:repeat(25,1fr)}
+  .fly svg{display:none} .fly ol{display:block}
+  .big b{font-size:84px}
+  .kv2 b{font-size:21px}
+  .brand{padding:10px 12px;gap:8px}
+  .brand .mini{height:30px;width:52px}
+  .brand b{font-size:22px}
+  .walletcell{padding:10px 12px}
+  .walletcell .btn{padding:9px 10px;font-size:12.5px;gap:7px}
+  .strow{grid-template-columns:minmax(0,1fr)}
+  .strow>div+div{border-left:0;border-top:1px solid var(--rule)}
+  .strow .st{max-width:180px}
+  .lists{grid-template-columns:minmax(0,1fr)}
+  .lcard{grid-template-columns:90px minmax(0,1fr)}
+  .lcard .st{width:90px}
+}
+@media (prefers-reduced-motion:reduce){
+  .scope .sweep{animation:none}
+  .btn:active:not([disabled]){transform:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="sprites"></defs></svg>
+
+<div class="wrap">
+  <header class="top panel">
+    <div class="nav">
+      <a class="brand" href="#scope" aria-label="Sonar home">
+        <svg class="mini" viewBox="0 0 72 41" shape-rendering="crispEdges" aria-hidden="true"><use href="#subW" class="hull"/><use href="#subC" class="cyf"/><use href="#subV" class="cyf"/></svg>
+        <span><b>Sonar</b><small>$SONAR</small></span>
+      </a>
+      <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+      <div class="walletcell">
+        <button class="btn cy" id="walletBtn" data-act="wallet" aria-haspopup="true"><i class="dot"></i><span>Connect wallet</span></button>
+        <div class="menu panel" id="walletMenu" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <footer>
+    <span>Sonar. Scan the depths. Detect the signal. Launch the coin.</span>
+    <span>Stations, signals, $SONAR and every coin launched here can go to zero. Nothing here is financial advice.</span>
+  </footer>
+</div>
+
+<div id="overlay"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ---------- logo pixel grid ---------- */
+const SUB = [".................................ccc....................................", ".................................ccc....................................", "..............................wwwccc....................................", "..............................wwwccc....................................", "..............................ww........................................", "..............................ww........................................", "..............................ww..w.....................................", "............................wwww..w.....................................", "............................wwww..w.....................................", "............................ww....w.....................................", "........................wwwwwwwwwwwwww..................................", ".......................ww............ww.......................ccc.......", "......................www.............w.......................ccc.......", "......................www..cc..c..cc..w.........................ccc.....", ".....................www...cc..c..cc..ww........................ccc.....", "....wwwww.............................www.................ccc....cccc...", "....ww..ww............................www.................cccc....ccc...", "....ww..www........wwwwwwwwwwwwwwwwwwwwwwwwwww..............ccc...ccc...", "....ww....ww......wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww............ccc...ccc..", "....wwccc..w.....wwwwwwwwwwwwwwwwwwwwwwwwwwww..www.....cc....ccc....cc..", "....wwccc..w....ww.........................ww..www.....ccc...ccc....cc..", "www.ww......wwwwww..........................w..wwwww....ccc...ccc....ccc", "www........wwww.............................w...wwwww...ccc....cc....ccc", "www.......wwwww....www......www......www....w...wwwww....ccc...cc....ccc", "wwww..wwwwwww......wccw....wcccw....wccw....w...wwcccw....cc...cc....ccc", "..ww..w...........wccccw..wcccccw..wccccw...w...wwcccw....cc...cc....ccc", "..ww..w...........wccccw..wcccccw..wccccw...w...wwcccw....cc...cc....ccc", "wwww..wwwwwww.....wwccww...wcccw....wccww...w...wwcccw....cc...cc....ccc", "wwww..wwwwwww.......ww......www......ww.....w...wwwww...ccc....cc....ccc", "www........wwww.............................w...wwwww...ccc....cc....ccc", "www.ww......www.............................w..wwwww....ccc..cccc....ccc", "....wwccc..w..wwww..........................w..www.....cc....ccc....cc..", "....wwccc.ww...wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww......cc....ccc....cc..", "....ww...www.....wwwwwwwwwwwwwwwwwwwwwwwwwwwwww.............cccc..cccc..", "....ww..www.......wwwwwwwwwwwwwwwwwwwwwwwwwwww..............cc....ccc...", "....wwwwww................................................ccc....cccc...", ".....wwww.................................................ccc....cccc...", "................................................................ccc.....", "...............................................................cccc.....", "..............................................................ccc.......", "........................................................................"];
+
+/* ---------- config ---------- */
+const DAY = 86400, HOUR = 3600;
+const CFG = {
+  RPC: 'https://api.mainnet-beta.solana.com', // swap for your own RPC (Helius, Triton…) when you deploy
+  X: 'https://x.com/SonarDotRent',
+  SUPPLY: 1111, MINT0: 0.2, MINT1: 1.2,
+  OPER: 0.60, BURN: 0.25, OPS: 0.15,
+  RENT_OWNER: 0.90, RENT_BURN: 0.10, SIG_ROYALTY: 0.05,
+  FRESH_H: 12, SIG_TTL: 24 * HOUR,
+  PRICE0: 0.0000012, TOKEN_SUPPLY: 1e9,
+  START_T: 2 * DAY + 9 * HOUR,
+  OTHER_RATE: 4 / 1440
+};
+const TIERS = [
+  { key: 'shallow', name: 'Shallow', unlock: 0, rate: 1/150, mu: Math.log(0.08), sd: 1.0, acc: 0, finds: 'Trending narratives', blurb: 'Listens near the surface: trending posts, busy pump.fun pages, memes spreading fast.', freq: 'High', spread: 'Narrow' },
+  { key: 'deep', name: 'Deep', unlock: 25000, rate: 1/300, mu: Math.log(0.10), sd: 1.5, acc: 0, finds: 'Early on-chain activity', blurb: 'Tracks fresh wallets, new mints and early volume before the crowd notices.', freq: 'Medium', spread: 'Wide' },
+  { key: 'abyssal', name: 'Abyssal', unlock: 80000, rate: 1/600, mu: Math.log(0.07), sd: 2.1, acc: 0, finds: 'Obscure signals', blurb: 'Reads strange, low-volume signals far from the mainstream.', freq: 'Low', spread: 'Extreme' },
+  { key: 'quantum', name: 'Quantum', unlock: 180000, rate: 1/360, mu: Math.log(0.09), sd: 1.6, acc: 2, finds: 'Multi-model detection', blurb: 'Runs several AI models together and cross-checks every signal before it reports it.', freq: 'Medium', spread: 'Wide' }
+];
+const UP = {
+  range:    { name: 'Scanning range', max: 5, cost: l => 5000 * l, eff: '+25% detection rate per level' },
+  accuracy: { name: 'Detection accuracy', max: 5, cost: l => 6000 * l, eff: 'Sharper signal strength readings, +5% signal quality' },
+  cap:      { name: 'Launch capacity', max: 3, cost: l => 20000 * l, eff: '+1 coin live at once' }
+};
+const DURS = [{ h: 1, name: '1 hour', off: 0 }, { h: 24, name: '1 day', off: 0.10 }, { h: 168, name: '1 week', off: 0.25 }];
+const NARR = {
+  shallow: { a: ['Capybara','Frog','Goose','Hamster','Penguin','Raccoon','Otter','Pigeon','Axolotl','Walrus','Lobster','Possum'], b: ['Council','Summer','Army','Season','Parade','Gym','Choir','Union','Club','Rally','Picnic','Mob'],
+    s: ['Mentions up {n}% in 6 hours','In the top 20 on pump.fun','A meme format spreading across 3 apps','A sticker pack that went viral overnight'] },
+  deep: { a: ['Fresh','Early','First','Quiet','Rising','Young','New','Swift','Bright','Silent','Sharp','Steady'], b: ['Mint','Wallet','Pool','Volume','Holder','Bid','Swap','Ledger','Block','Slot','Route','Vault'],
+    s: ['{n} new wallets bought in the last hour','Early volume on a fresh pool','A cluster of first-time buyers','Smart-money wallets moving in'] },
+  abyssal: { a: ['Dormant','Ghost','Orphan','Null','Lost','Prime','Midnight','Hollow','Drift','Echo','Deep','Dust'], b: ['Whale','Validator','Mint','Slot','Seed','Lamport','Memo','Key','Signal','Relic','Shard','Lode'],
+    s: ['A wallet woke up after {n} days','An odd memo pattern in {n} transactions','A mint with strange metadata','Repeating transfers of {n} lamports'] },
+  quantum: { a: ['Tidal','Prism','Vector','Lattice','Pulse','Helix','Nova','Cipher','Arc','Flux','Orbit','Wave'], b: ['Signal','Model','Grid','Index','Beacon','Array','Field','Core','Node','Loop','Mesh','Trace'],
+    s: ['Confirmed by 3 models','Cross-checked on {n} data sources','Sentiment and wallets agree','Flagged by every model at once'] }
+};
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash(n){ n = (n ^ 61) ^ (n >>> 16); n = n + (n << 3); n = n ^ (n >>> 4); n = Math.imul(n, 0x27d4eb2d); n = n ^ (n >>> 15); return n >>> 0; }
+function gauss(r = Math.random){ let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const pick = (arr, r = Math.random) => arr[Math.floor(r() * arr.length)];
+const fmtSol = x => { x = +x || 0; return x >= 100 ? x.toFixed(1) : x >= 1 ? x.toFixed(2) : x >= 0.01 ? x.toFixed(3) : x > 0 ? x.toFixed(4) : '0'; };
+const fmtTok = x => { x = +x || 0; if (x >= 1e9) return (x/1e9).toFixed(2) + 'B'; if (x >= 1e6) return (x/1e6).toFixed(x >= 1e7 ? 1 : 2) + 'M'; if (x >= 1e3) return (x/1e3).toFixed(x >= 1e4 ? 0 : 1) + 'k'; return Math.round(x) + ''; };
+const pad2 = n => String(n).padStart(2, '0');
+function ago(t){ const s = S.t - t; if (s < 60) return 'just now'; if (s < HOUR) return Math.floor(s / 60) + ' min ago'; if (s < DAY) return `${Math.floor(s / HOUR)} h ${Math.floor(s % HOUR / 60)} min ago`; return Math.floor(s / DAY) + ' d ago'; }
+function left(t){ const s = Math.max(0, t - S.t); if (s < HOUR) return Math.ceil(s / 60) + ' min'; if (s < DAY) return `${Math.floor(s / HOUR)} h ${Math.floor(s % HOUR / 60)} min`; return `${Math.floor(s / DAY)} d ${Math.floor(s % DAY / HOUR)} h`; }
+const short = a => a ? a.slice(0, 4) + '…' + a.slice(-4) : '';
+const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const randAddr = r => Array.from({ length: 44 }, () => B58[Math.floor(r() * 58)]).join('');
+const mintPrice = n => CFG.MINT0 + (CFG.MINT1 - CFG.MINT0) * (Math.min(n, CFG.SUPPLY) - 1) / (CFG.SUPPLY - 1);
+const price = () => CFG.PRICE0 * (1 + S.burned / CFG.TOKEN_SUPPLY * 40);
+const r50 = x => Math.max(50, Math.round(x / 50) * 50);
+const fresh = g => Math.exp(-(S.t - g.t) / (CFG.FRESH_H * HOUR));
+const sigValue = g => r50(2500 * Math.exp(0.035 * (g.str - 50)) * fresh(g));
+
+/* ---------- sprites ---------- */
+function runs(test){
+  let r = '';
+  SUB.forEach((row, y) => { let x = 0; while (x < row.length) { if (test(row[x], x)) { const s = x; while (x < row.length && test(row[x], x)) x++; r += `<rect x="${s}" y="${y}" width="${x - s}" height="1"/>`; } else x++; } });
+  return r;
+}
+document.getElementById('sprites').innerHTML = `<g id="subW">${runs(c => c === 'w')}</g><g id="subC">${runs((c, x) => c === 'c' && x < 54)}</g><g id="subV">${runs((c, x) => c === 'c' && x >= 54)}</g>`;
+function pix(rows){
+  const h = rows.length, w = rows[0].length; let r = '';
+  rows.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; else if (c === 'c') r += `<rect class="c" x="${x}" y="${y}" width="1" height="1"/>`; }));
+  return `<svg class="pix" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
+const MINI = `<svg class="mini" viewBox="0 0 72 41" shape-rendering="crispEdges" aria-hidden="true"><use href="#subW" class="hull"/><use href="#subC" class="cyf"/><use href="#subV" class="cyf"/></svg>`;
+const ICO = {
+  scope: pix(['..#####..','.#.....#.','#...#...#','#..#c#..#','#.#ccc..#','#...#...#','.#.....#.','..#####..']),
+  rent: pix(['.###.....','#...#....','#.c.#####','#...#.#.#','.###.....']),
+  signal: pix(['....c....','...ccc...','..#.c.#..','.#..c..#.','#...c...#','....c....','....#....','...###...']),
+  fleet: pix(['#.#.#.#.#','.........','#.#.#.#.#','.........','#.#.c.#.#','.........','#.#.#.#.#']),
+  mine: pix(['.#######.','#.......#','#....####','#....#c##','#....####','#.......#','.#######.']),
+  how: pix(['###...###','#c##.##c#','#..#.#..#','#.##.##.#','#..#.#..#','###.#.###']),
+  docs: pix(['######..','#....##.','#.cc..##','#......#','#.####.#','#......#','#.####.#','########']),
+  coin: pix(['..###..','.#ccc#.','#cc#cc#','#c###c#','#cc#cc#','.#ccc#.','..###..']),
+  wave: pix(['c.....c..','.c.....c.','..c..c..c','..c..c..c','.c.....c.','c.....c..']),
+  gavel: pix(['##.....','###....','.###...','..##.#.','...###.','....###','.....##'])
+};
+function tierGlyph(d){ return `<svg class="dg" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true">${[0,1,2,3].map(i => `<rect x=".5" y="${0.5 + i * 2.1}" width="8" height="1.4" class="${i <= d ? 'on' : 'off'}"/>`).join('')}</svg>`; }
+
+/* ---------- state ---------- */
+const KEY = 'sonar-state-v2', KEYW = 'sonar-wallet-v1';
+let S, stById = new Map(), coinById = new Map();
+function reindex(){ stById = new Map(S.st.map(e => [e.id, e])); coinById = new Map(S.coins.map(c => [c.id, c])); }
+function feedPush(x){ x.t = S.t; S.feed.unshift(x); if (S.feed.length > 60) S.feed.length = 60; }
+const hourly = e => e.rv / Math.max(6, Math.min(168, (S.t - e.t) / HOUR));
+const fair = (e, share) => r50(0.75 * share * Math.max(hourly(e), 0.0015 * (1 + e.tier * 0.5) * e.cap) / price());
+const inAuction = e => S.auc.some(a => a.st === e.id);
+const opIsUser = e => e.rent ? e.rent.user : e.user;
+
+function addOther(r){
+  const n = S.st.length + 1; if (n > CFG.SUPPLY) return;
+  const fee = mintPrice(n), x = r(), tier = x < 0.5 ? 0 : x < 0.8 ? 1 : x < 0.93 ? 2 : 3;
+  const e = { id: n, owner: randAddr(r), tier, range: 1 + Math.min(4, Math.floor(r() * r() * 5)), accuracy: 1 + Math.min(4, Math.floor(r() * r() * 5)), cap: 1 + (r() < 0.3 ? 1 : 0) + (r() < 0.08 ? 1 : 0),
+    mode: r() < 0.25 ? 'hold' : 'auto', live: 0, count: 0, det: 0, unclaimed: 0, rentUn: 0, own: 0, life: 0, rv: 0, j: [], user: false, list: null, rent: null, t: S.t };
+  if (r() < 0.18) e.list = { share: pick([0.5, 0.6, 0.7, 0.8], r), k: 0.8 + r() * 0.6, price: 0 };
+  let burnTok = TIERS[tier].unlock;
+  for (const k of ['range','accuracy','cap']) for (let l = 1; l < e[k]; l++) burnTok += UP[k].cost(l);
+  S.burnSol += fee * 0.5; S.burned += fee * 0.5 / price() + burnTok; S.ops += fee * 0.5;
+  S.st.push(e); stById.set(e.id, e);
+  if (e.list) e.list.price = r50(fair(e, e.list.share) * e.list.k);
+}
+function detect(e, r = Math.random){
+  const tr = TIERS[e.tier], p = NARR[tr.key], a = pick(p.a, r), b = pick(p.b, r);
+  const tick = (a.replace(/[^A-Za-z]/g, '').slice(0, 4) + b.replace(/[^A-Za-z]/g, '').slice(0, 1 + Math.floor(r() * 3))).toUpperCase();
+  const n = [200 + Math.floor(r() * 900), 8 + Math.floor(r() * 60), 300 + Math.floor(r() * 1400), 4 + Math.floor(r() * 6)][e.tier];
+  const F = Math.exp(tr.mu + tr.sd * gauss(r)) * (1 + 0.05 * (e.accuracy - 1));
+  const z = (Math.log(F) - tr.mu) / tr.sd;
+  const noise = 1.1 * Math.pow(0.78, e.accuracy - 1 + tr.acc);
+  const str = Math.max(1, Math.min(99, Math.round(50 + 18 * (z + noise * gauss(r)))));
+  return { id: S.nextSig++, tick, desc: pick(p.s, r).replace('{n}', n), tier: e.tier, F, str, t: S.t, src: e.id, user: false, owner: null, price: 0 };
+}
+function launch(e, g){
+  const f = Math.exp(-(S.t - g.t) / (CFG.FRESH_H * HOUR));
+  const F = g.F * f, L = Math.exp(Math.log(120) + 0.9 * gauss());
+  const c = { id: S.nextCoin++, st: e.id, tier: g.tier, tick: g.tick, desc: g.desc, str: g.str, t0: S.t, F, L, fees: 0, alive: true, grad: false, gradAt: F > 5 ? F * 0.3 : -1 };
+  S.coins.push(c); coinById.set(c.id, c);
+  e.live++; e.count++; e.j.unshift(c.id);
+  if (e.j.length > 64) { for (let i = e.j.length - 1; i >= 0; i--) { const cc = coinById.get(e.j[i]); if (!cc || !cc.alive) { e.j.splice(i, 1); break; } } if (e.j.length > 64) e.j.length = 64; }
+  feedPush({ k: 'launch', st: e.id, tick: c.tick, tier: g.tier });
+  S.ver++;
+  if (opIsUser(e) && S.speed <= 60) toast(`Station #${e.id} launched $${c.tick}`);
+}
+function pay(c, f){
+  c.fees += f;
+  const e = stById.get(c.st);
+  if (e) { const op = f * CFG.OPER, renter = e.rent ? op * e.rent.share : 0; e.rentUn += renter; e.unclaimed += op - renter; e.own += op - renter; e.life += op; e.rv += op; }
+  S.burnSol += f * CFG.BURN; S.burned += f * CFG.BURN / price(); S.ops += f * CFG.OPS;
+}
+function startRent(e, who, isUser, hours, cost, share){
+  e.rent = { who, user: isUser, until: S.t + hours * HOUR, share, hours }; e.rentUn = 0;
+  S.burned += cost * CFG.RENT_BURN;
+  if (e.user && !isUser) { S.wal.son += cost * CFG.RENT_OWNER; toast(`Station #${e.id} rented for ${hours === 1 ? '1 hour' : hours === 24 ? '1 day' : '1 week'}: +${fmtTok(cost * CFG.RENT_OWNER)} $SONAR`); }
+  S.ver++;
+}
+function endRent(e){
+  if (e.rent.user && e.rentUn > 0) { S.wal.sol += e.rentUn; toast(`Rental of station #${e.id} ended. ${fmtSol(e.rentUn)} SOL settled to your wallet.`); }
+  e.rentUn = 0; e.rent = null; S.ver++;
+}
+function prune(){
+  const cut = S.t - 8 * HOUR;
+  S.coins = S.coins.filter(c => c.alive || c.grad || c.t0 > cut || stById.get(c.st)?.user);
+  coinById = new Map(S.coins.map(c => [c.id, c]));
+  for (const e of S.st) if (e.list && !e.user) e.list.price = r50(fair(e, e.list.share) * e.list.k);
+}
+function spawnAuction(){
+  const pool = S.st.filter(e => !e.user && !e.rent && !e.list && !inAuction(e)).sort((a, b) => hourly(b) - hourly(a)).slice(0, 14);
+  if (!pool.length) return;
+  const e = pick(pool), start = r50(fair(e, 0.7) * 24 * 0.55);
+  S.auc.push({ a: S.nextA++, st: e.id, bid: start, start, bidder: null, ends: S.t + (1.5 + Math.random() * 2.5) * HOUR, share: 0.7 });
+  S.ver++;
+}
+function step(dm){
+  const t0 = S.t; S.t += dm * 60;
+  if (S.st.length < CFG.SUPPLY && Math.random() < dm * CFG.OTHER_RATE) { addOther(Math.random); S.ver++; }
+  for (const e of S.st) {
+    if (e.rent && S.t >= e.rent.until) endRent(e);
+    if (e.list && !e.rent && !inAuction(e)) {
+      const a = Math.max(0.05, Math.min(3, fair(e, e.list.share) / e.list.price));
+      if (Math.random() < dm / 1100 * a) { const x = Math.random(), d = DURS[x < 0.5 ? 0 : x < 0.9 ? 1 : 2]; startRent(e, randAddr(Math.random), false, d.h, e.list.price * d.h * (1 - d.off), e.list.share); }
+    }
+    if (Math.random() < dm * TIERS[e.tier].rate * (1 + 0.25 * (e.range - 1))) {
+      const g = detect(e); e.det++;
+      if (e.mode === 'auto' && e.live < e.cap) launch(e, g);
+      else if (opIsUser(e)) { g.user = true; g.owner = W.addr; S.sig.push(g); S.ver++; if (S.speed <= 60) toast(`Station #${e.id} detected $${g.tick}. Signal NFT added to your signals.`); }
+      else if (Math.random() < 0.25) { g.owner = randAddr(Math.random); g.price = r50(sigValue(g) * (0.8 + Math.random() * 0.6)); S.sig.push(g); }
+    }
+  }
+  for (const c of S.coins) {
+    if (!c.alive) continue;
+    const a0 = Math.max(0, (t0 - c.t0) / 60), a1 = Math.max(0, (S.t - c.t0) / 60);
+    const f = c.F * (Math.exp(-a0 / c.L) - Math.exp(-a1 / c.L));
+    if (f > 0) pay(c, f);
+    if (!c.grad && c.gradAt > 0 && c.fees >= c.gradAt) { c.grad = true; S.ver++; }
+    if (a1 > 3 * c.L) { c.alive = false; const e = stById.get(c.st); if (e) e.live = Math.max(0, e.live - 1); S.ver++; }
+  }
+  const decay = Math.exp(-dm * 60 / (7 * DAY));
+  for (const e of S.st) e.rv *= decay;
+  // signal market: buyers and expiry
+  const keep = [];
+  for (const g of S.sig) {
+    if (S.t - g.t > CFG.SIG_TTL) { if (g.user) toast(`Signal $${g.tick} went stale and expired`); S.ver++; continue; }
+    if (g.price > 0) {
+      const a = Math.max(0.05, Math.min(3, sigValue(g) / g.price));
+      if (Math.random() < dm / 260 * a) {
+        S.burned += g.price * CFG.SIG_ROYALTY;
+        if (g.user) { S.wal.son += g.price * (1 - CFG.SIG_ROYALTY); toast(`Signal $${g.tick} sold for ${fmtTok(g.price)} $SONAR`); }
+        S.ver++; continue;
+      }
+    }
+    keep.push(g);
+  }
+  S.sig = keep;
+  const market = S.sig.filter(g => !g.user);
+  if (market.length > 12) { const drop = new Set(market.slice(0, market.length - 12).map(g => g.id)); S.sig = S.sig.filter(g => !drop.has(g.id)); }
+  for (const a of S.auc) {
+    if (S.t < a.ends && Math.random() < dm / 40) {
+      const nb = r50(Math.max(a.start, a.bid * (1.06 + Math.random() * 0.08)));
+      if (nb <= fair(stById.get(a.st), a.share) * 24 * 1.25) { if (a.bidder === 'you') { S.wal.son += a.bid; toast(`You were outbid on station #${a.st}`); } a.bid = nb; a.bidder = randAddr(Math.random); S.ver++; }
+    }
+  }
+  for (const a of S.auc.filter(a => S.t >= a.ends)) {
+    const e = stById.get(a.st);
+    if (a.bidder && e && !e.rent) { startRent(e, a.bidder === 'you' ? W.addr : a.bidder, a.bidder === 'you', 24, a.bid, a.share); if (a.bidder === 'you') toast(`You won the auction for station #${e.id}. It’s yours to run for 24 hours.`); }
+    else if (a.bidder === 'you') S.wal.son += a.bid;
+    S.auc = S.auc.filter(x => x !== a); S.ver++;
+  }
+  while (S.auc.length < 1) { const before = S.auc.length; spawnAuction(); if (S.auc.length === before) break; }
+  if (Math.floor(S.t / HOUR) !== Math.floor(t0 / HOUR)) prune();
+}
+function advance(minutes){ while (minutes > 0) { const d = Math.min(5, minutes); step(d); minutes -= d; } }
+function newWorld(){
+  S = { v: 1, t: CFG.START_T - 2 * DAY, speed: 60, st: [], coins: [], sig: [], feed: [], auc: [], burned: 0, burnSol: 0, ops: 0, wal: { sol: 30, son: 250000 }, nextCoin: 1, nextSig: 1, nextA: 1, ver: 0 };
+  stById = new Map(); coinById = new Map();
+  const r = mulberry(29);
+  for (let i = 0; i < 36; i++) addOther(r);
+  advance(2 * 24 * 60);
+  S.feed = S.feed.slice(0, 40);
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function load(){
+  try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.v === 1 && Array.isArray(s.st)) { S = s; reindex(); return; } } } catch (e) {}
+  newWorld();
+}
+
+/* ---------- wallet (Wallet Standard + injected providers, validated with @solana/web3.js) ---------- */
+const W = { list: [], addr: null, name: null, entry: null, kind: null, balance: null };
+const isMine = e => !!(e && e.user && W.addr && e.owner === W.addr);
+const isRenting = e => !!(e && e.rent && e.rent.user && W.addr && e.rent.who === W.addr);
+const mySig = g => !!(g && g.user && W.addr && g.owner === W.addr);
+function addWallet(x){ if (!W.list.some(w => w.name.toLowerCase() === x.name.toLowerCase())) W.list.push(x); }
+const wsApi = { register: (...ws) => { ws.forEach(w => { try { if (w.features && w.features['standard:connect'] && (w.chains || []).some(c => String(c).startsWith('solana:'))) addWallet({ name: w.name, icon: w.icon, kind: 'standard', w }); } catch (e) {} }); return () => {}; } };
+try {
+  window.addEventListener('wallet-standard:register-wallet', ev => { try { ev.detail(wsApi); } catch (e) {} });
+  window.dispatchEvent(new CustomEvent('wallet-standard:app-ready', { detail: wsApi }));
+} catch (e) {}
+function detectInjected(){
+  const c = [['Phantom', window.phantom && window.phantom.solana], ['Solflare', window.solflare], ['Backpack', window.backpack], ['Solana wallet', window.solana]];
+  for (const [n, p] of c) {
+    if (!p || typeof p.connect !== 'function') continue;
+    const name = p.isPhantom ? 'Phantom' : p.isSolflare ? 'Solflare' : n;
+    if (!W.list.some(w => w.name.toLowerCase().startsWith(name.toLowerCase()))) addWallet({ name, icon: null, kind: 'injected', p });
+  }
+}
+function validAddr(a){
+  try { if (window.solanaWeb3 && solanaWeb3.PublicKey) return new solanaWeb3.PublicKey(a).toBase58(); } catch (e) { return null; }
+  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a) ? a : null;
+}
+async function connectEntry(entry, silent){
+  let addr = null;
+  if (entry.kind === 'standard') {
+    const w = entry.w;
+    if (silent) { if (w.accounts && w.accounts.length) addr = w.accounts[0].address; else return false; }
+    else { const r = await w.features['standard:connect'].connect(); const acc = (r && r.accounts && r.accounts.length ? r.accounts : w.accounts)[0]; addr = acc && acc.address; }
+    try { w.features['standard:events'] && w.features['standard:events'].on('change', ({ accounts }) => { if (accounts && accounts.length) setWallet(accounts[0].address, entry); else clearWallet(); }); } catch (e) {}
+  } else {
+    const p = entry.p;
+    const r = await p.connect(silent ? { onlyIfTrusted: true } : undefined);
+    const pk = (r && r.publicKey) || p.publicKey; addr = pk && pk.toString();
+    try { p.on && p.on('accountChanged', pk => { if (pk) setWallet(pk.toString(), entry); else clearWallet(); }); } catch (e) {}
+  }
+  if (!addr) throw new Error('The wallet returned no account.');
+  setWallet(addr, entry);
+  return true;
+}
+function setWallet(addr, entry){
+  const ok = validAddr(addr);
+  if (!ok) { toast('That wallet returned an invalid Solana address.'); return; }
+  W.addr = ok; W.name = entry ? entry.name : 'Guest wallet'; W.entry = entry || null; W.kind = entry ? entry.kind : 'guest'; W.balance = null;
+  try { localStorage.setItem(KEYW, JSON.stringify({ name: W.name, kind: W.kind, addr: W.kind === 'guest' ? W.addr : null })); } catch (e) {}
+  for (const e of S.st) if (e.rent && e.rent.user) e.rent.who = W.addr;
+  for (const g of S.sig) if (g.user) g.owner = W.addr;
+  paintWallet(); S.ver++; render(true);
+  if (W.kind !== 'guest') fetchBalance();
+}
+async function fetchBalance(){
+  if (!window.solanaWeb3 || !W.addr) return;
+  try {
+    const conn = new solanaWeb3.Connection(CFG.RPC, 'confirmed');
+    const lamports = await Promise.race([conn.getBalance(new solanaWeb3.PublicKey(W.addr)), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))]);
+    W.balance = lamports / solanaWeb3.LAMPORTS_PER_SOL;
+  } catch (e) { W.balance = 'unavailable'; }
+  paintWallet();
+}
+async function clearWallet(){
+  const e = W.entry;
+  try { if (e && e.kind === 'standard' && e.w.features['standard:disconnect']) await e.w.features['standard:disconnect'].disconnect(); if (e && e.kind === 'injected' && e.p.disconnect) await e.p.disconnect(); } catch (err) {}
+  Object.assign(W, { addr: null, name: null, entry: null, kind: null, balance: null });
+  try { localStorage.removeItem(KEYW); } catch (err) {}
+  $('#walletMenu').hidden = true; paintWallet(); S.ver++; render(true);
+}
+function paintWallet(){
+  const b = $('#walletBtn');
+  if (W.addr) { b.className = 'btn connected'; b.innerHTML = `<i class="dot"></i><span>${short(W.addr)}</span>`; b.setAttribute('aria-label', `Wallet ${W.addr}, open menu`); }
+  else { b.className = 'btn cy'; b.innerHTML = `<i class="dot"></i><span>Connect wallet</span>`; b.setAttribute('aria-label', 'Connect wallet'); }
+  if (W.addr) {
+    const bal = W.kind === 'guest' ? fmtSol(S.wal.sol) + ' SOL' : W.balance == null ? 'Checking…' : W.balance === 'unavailable' ? 'Unavailable' : fmtSol(W.balance) + ' SOL';
+    $('#walletMenu').innerHTML = `<div class="rows"><div><label>Wallet</label><b>${esc(W.name)}</b></div><div><label>Address</label><b>${short(W.addr)}</b></div><div><label>Balance</label><b>${bal}</b></div><div><label>$SONAR</label><b>${fmtTok(S.wal.son)}</b></div></div>
+      <div class="mitems"><button data-act="copyAddr">Copy address</button>${W.kind !== 'guest' ? `<a href="https://solscan.io/account/${W.addr}" target="_blank" rel="noopener">View on Solscan</a>` : ''}<button data-act="disconnect">Disconnect</button></div>`;
+  }
+}
+function openWalletModal(){
+  detectInjected();
+  const items = W.list.map((w, i) => `<button class="wopt" data-act="pickWallet" data-i="${i}">${w.icon ? `<img src="${esc(w.icon)}" alt="">` : `<span class="ph-ico"></span>`}<span>${esc(w.name)}</span><em>Detected</em></button>`).join('');
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="wt">
+    <h2 class="ph" id="wt">${ICO.mine} Connect a Solana wallet <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="wlist">
+      ${items || `<p class="small" style="margin:0">No Solana wallet found in this browser. Install one, then reload this page.</p>
+        <a class="wopt" href="https://phantom.app/download" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Phantom</a>
+        <a class="wopt" href="https://solflare.com/download" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Solflare</a>
+        <a class="wopt" href="https://backpack.app/downloads" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Backpack</a>`}
+      <button class="wopt" data-act="guestWallet"><span class="ph-ico" style="background:var(--cy)"></span><span>Continue as guest</span></button>
+      <p class="small" style="margin:4px 0 0">Connecting shares your public address only.</p>
+    </div></section>`);
+}
+async function eagerConnect(){
+  let saved = null; try { saved = JSON.parse(localStorage.getItem(KEYW) || 'null'); } catch (e) {}
+  if (!saved) return;
+  if (saved.kind === 'guest' && saved.addr) { setWallet(saved.addr, null); return; }
+  detectInjected();
+  const entry = W.list.find(w => w.name === saved.name);
+  if (entry) { try { await connectEntry(entry, true); } catch (e) {} }
+}
+
+/* ---------- pictures ---------- */
+function stSVG(e){
+  const live = e.live > 0;
+  let s = `<svg class="st" viewBox="0 0 72 50" shape-rendering="crispEdges" role="img" aria-label="Station #${e.id}, ${TIERS[e.tier].name}${live ? ', ' + e.live + ' coins live' : ', listening'}">`;
+  s += `<use href="#subW" class="hull"/><use href="#subC" class="cyf"/><use href="#subV" class="${live ? 'cyf' : 'idle'}"/>`;
+  for (let i = 0; i < e.live; i++) s += `<rect x="${44 + i * 4}" y="1" width="2" height="2" class="cyf"/>`;
+  for (let i = 0; i < 4; i++) s += `<rect x="${i * 18}" y="45" width="16" height="4" class="${i <= e.tier ? 'tieron' : 'tierbar'}"/>`;
+  return s + '</svg>';
+}
+let seenCoin = 0;
+function scopeSVG(){
+  const C = 100, R = [[16, 40], [40, 60], [60, 80], [80, 96]];
+  let s = `<svg class="scope" viewBox="0 0 200 200" shape-rendering="crispEdges" role="img" aria-label="Sonar scope. Rings from the centre out are the Shallow, Deep, Abyssal and Quantum tiers. Each blip is a coin launched from a signal detected at that tier.">`;
+  s += `<circle class="bgc" cx="100" cy="100" r="99"/>`;
+  s += `<line class="axis" x1="4" y1="100" x2="196" y2="100"/><line class="axis" x1="100" y1="4" x2="100" y2="196"/><line class="axis" x1="32" y1="32" x2="168" y2="168"/><line class="axis" x1="168" y1="32" x2="32" y2="168"/>`;
+  [40, 60, 80].forEach(r => s += `<circle class="ring" cx="100" cy="100" r="${r}"/>`);
+  s += `<circle class="ring outer" cx="100" cy="100" r="96"/>`;
+  s += `<g class="sweep"><path class="wedge" d="M100 100 L196 100 A96 96 0 0 0 183.1 52 Z"/><line class="arm" x1="100" y1="100" x2="196" y2="100"/></g>`;
+  const blip = (id, tier, salt) => { const h = hash(id * 13 + salt), [lo, hi] = R[tier], rr = lo + 3 + (h % 1000) / 1000 * (hi - lo - 6), a = ((h >>> 10) % 3600) / 3600 * Math.PI * 2; return [C + rr * Math.cos(a), C + rr * Math.sin(a)]; };
+  for (const g of S.sig.filter(g => !g.user).slice(-60)) { const [x, y] = blip(g.id, g.tier, 7); s += `<rect class="b-sig" x="${(x - 1.5).toFixed(1)}" y="${(y - 1.5).toFixed(1)}" width="3" height="3"><title>Signal $${esc(g.tick)} for sale, strength ${g.str}</title></rect>`; }
+  for (const c of S.coins.slice(-140)) {
+    const [x, y] = blip(c.id, c.tier, 3), cls = c.grad ? 'b-grad' : c.alive ? 'b-live' : 'b-dead', w = c.grad ? 3.4 : c.alive ? 2.6 : 1.6;
+    s += `<rect class="${cls}" x="${(x - w / 2).toFixed(1)}" y="${(y - w / 2).toFixed(1)}" width="${w}" height="${w}"><title>$${esc(c.tick)}, station #${c.st}, ${TIERS[c.tier].name} (${c.grad ? 'graduated' : c.alive ? 'live' : 'quiet'})</title></rect>`;
+    if (c.id > seenCoin) seenCoin = c.id;
+  }
+  s += `<g transform="translate(88 93.5) scale(.34)"><use href="#subW" class="sub-w"/><use href="#subC" class="sub-c"/><use href="#subV" class="sub-c"/></g>`;
+  [['SHALLOW', 37], ['DEEP', 57], ['ABYSSAL', 77], ['QUANTUM', 93]].forEach(([t, r]) => s += `<text class="rl" x="102" y="${100 - r + 1}">${t}</text>`);
+  return s + '</svg>';
+}
+
+/* ---------- views ---------- */
+const TABS = [['scope','Scope',ICO.scope],['deploy','Deploy',MINI],['rentals','Rentals',ICO.rent],['signals','Signals',ICO.signal],['fleet','Fleet',ICO.fleet],['stations','My stations',ICO.mine],['how','How it works',ICO.how],['docs','Docs',ICO.docs]];
+let tab = 'scope';
+const D = { tier: 0, mode: 'auto' };
+const M = { tier: 'all', sort: 'value', dur: 1 };
+const Q = { tier: 'all', sort: 'num', show: 'all', limit: 72 };
+const G = { tier: 'all', sort: 'str' };
+const LST = { id: 0, share: 0.7, mult: 1 };
+const SL = { id: 0, mult: 1 };
+
+const LIVE = {
+  burned: () => fmtTok(S.burned),
+  live: () => String(S.coins.filter(c => c.alive).length),
+  un: id => fmtSol(stById.get(+id)?.unclaimed) + ' SOL',
+  own: id => fmtSol(stById.get(+id)?.own) + ' SOL',
+  rentUn: id => fmtSol(stById.get(+id)?.rentUn) + ' SOL',
+  myUn: () => fmtSol(mySt().reduce((a, e) => a + e.unclaimed, 0) + myRent().reduce((a, e) => a + e.rentUn, 0)) + ' SOL',
+  claimAll: () => 'Claim all · ' + fmtSol(mySt().reduce((a, e) => a + e.unclaimed, 0) + myRent().reduce((a, e) => a + e.rentUn, 0)) + ' SOL',
+  ago: t => ago(+t),
+  left: t => left(+t)
+};
+const mySt = () => W.addr ? S.st.filter(isMine) : [];
+const myRent = () => W.addr ? S.st.filter(isRenting) : [];
+const freeStation = () => [...myRent(), ...mySt().filter(e => !e.rent)].find(e => e.live < e.cap);
+function kv(label, val, k){ return `<div><label>${label}</label><b${k ? ` data-k="${k}"` : ''}>${val}</b></div>`; }
+
+let latestSnap = null, latestAt = 0;
+function vScope(){
+  const n = S.st.length, nn = Math.min(n + 1, CFG.SUPPLY), on = Math.round(n / CFG.SUPPLY * 50);
+  const nowR = performance.now();
+  if (!latestSnap || nowR - latestAt > 30000) { latestSnap = S.feed.filter(f => f.k === 'launch').slice(0, 6); latestAt = nowR; }
+  return `<div class="grid-hero"><div class="col">
+  <section class="panel">
+    <h2 class="ph">${ICO.scope} Status <small>the fleet right now</small></h2>
+    <div class="pad">
+      <label>Stations deployed</label>
+      <div class="big"><b>${n}</b><span>/ ${CFG.SUPPLY.toLocaleString('en-US')}</span></div>
+      <div class="ticks" aria-hidden="true">${Array.from({ length: 50 }, (_, i) => `<i class="${i < on ? 'on' : ''}${i === on - 1 ? ' last' : ''}"></i>`).join('')}</div>
+      <div class="kv4">
+        ${kv('Deploy price', n >= CFG.SUPPLY ? 'Sold out' : fmtSol(mintPrice(nn)) + ' SOL')}
+        ${kv('Live coins', S.coins.filter(c => c.alive).length, 'live')}
+        ${kv('Signals for sale', S.sig.filter(g => g.price > 0).length)}
+        ${kv('$SONAR burned', fmtTok(S.burned), 'burned')}
+      </div>
+      <button class="btn cy wide" data-go="deploy">Deploy a station</button>
+    </div>
+  </section>
+  <section class="panel">
+    <h2 class="ph">${ICO.coin} $SONAR <small>token</small></h2>
+    <div class="kv2"><div><label>Project</label><b>Sonar</b></div><div><label>Ticker</label><b>$SONAR</b></div></div>
+    ${CFG.X ? `<div class="btnrow"><a class="btn" href="${esc(CFG.X)}" target="_blank" rel="noopener">Follow @SonarDotRent on X</a></div>` : ''}
+  </section>
+  </div>
+  <section class="panel hero">
+    <h2 class="ph">${ICO.wave} Scope <small>every coin and signal from the last hours, by tier</small></h2>
+    <div class="hero-copy">
+      <h1>Scan the depths. Detect the signal. <em>Launch the coin.</em></h1>
+      <p>Each sonar station is an NFT that scans Solana for narratives, launches coins on pump.fun and collects their creator fees. Every detection becomes a Signal NFT you can launch, hold or trade.</p>
+      <div class="legend">
+        <span><i style="background:#14DDF7"></i>Live coin</span>
+        <span><i style="background:#FFFFFF;outline:1.5px solid #14DDF7"></i>Graduated to PumpSwap</span>
+        <span><i style="border:1.5px solid var(--ink)"></i>Signal for sale</span>
+        <span><i style="background:#2F6E99"></i>Gone quiet</span>
+      </div>
+    </div>
+    <div class="scopewrap">${scopeSVG()}</div>
+  </section>
+  </div>
+  <section class="panel mt">
+    <h2 class="ph">${ICO.docs} Latest launches <small>coins the stations just launched</small><button class="link end" data-go="fleet">Open the fleet</button></h2>
+    ${latestSnap.length ? `<div class="feed">${latestSnap.map(f => { const e = stById.get(f.st); return `<div>${e ? stSVG(e) : ''}<b>$${esc(f.tick)}</b><p>Station #${f.st} · ${TIERS[f.tier].name}</p><span class="ago" data-k="ago:${f.t}">${ago(f.t)}</span></div>`; }).join('')}</div>`
+      : `<div class="empty">${MINI}<span>No launches yet.</span></div>`}
+  </section>
+  <section class="panel mt">
+    <h2 class="ph">${ICO.how} How it works <small>five steps</small><button class="link end" data-go="how">All the rules</button></h2>
+    ${stepsHTML()}
+  </section>`;
+}
+function stepsHTML(){
+  const st = [
+    [MINI, 'Deploy a sonar', 'Buy a station NFT and choose the tier it scans at.'],
+    [ICO.wave, 'Scan the market', 'It watches on-chain activity, social sentiment, wallet moves and new narratives.'],
+    [ICO.signal, 'Detect signals', 'AI picks out promising narratives. Each one becomes a Signal NFT.'],
+    [ICO.scope, 'Launch tokens', 'The station launches coins on pump.fun from its signals, on its own.'],
+    [ICO.coin, 'Collect fees', '60% of each coin’s creator fees goes to whoever is running the station.']
+  ];
+  return `<div class="steps">${st.map((x, i) => `<div>${x[0]}<span class="n">${pad2(i + 1)}</span><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div>`;
+}
+
+function vDeploy(){
+  const n = S.st.length + 1, fee = mintPrice(n), tr = TIERS[D.tier], soldOut = n > CFG.SUPPLY;
+  const shortSol = S.wal.sol < fee, shortSon = S.wal.son < tr.unlock;
+  const can = W.addr && !soldOut && !shortSol && !shortSon;
+  const preview = { id: n, tier: D.tier, live: 1 };
+  return `<div class="grid-2"><div class="col">
+  <section class="panel step">
+    <h2 class="ph"><b>Step 1</b> <small>choose a tier</small><span class="tag cy end">Now</span></h2>
+    <div class="pad"><h3>How deep should it listen?</h3>
+      <p>The tier decides what the station scans for. You can upgrade the tier later.</p>
+      <div class="opts">${TIERS.map((d, i) => `<button class="opt" data-act="pickTier" data-i="${i}" aria-pressed="${D.tier === i}">${tierGlyph(i)}<b>${d.name} sonar</b><span>${d.finds}</span>
+        <dl><dt>Unlock</dt><dd>${d.unlock ? fmtTok(d.unlock) + ' $SON' : 'Free'}</dd><dt>Detections</dt><dd>${d.freq}</dd><dt>Spread</dt><dd>${d.spread}</dd></dl></button>`).join('')}</div>
+      <p class="note">${tr.blurb} Higher tiers cost more $SONAR and change what the station finds. They don’t raise average earnings.</p>
+    </div>
+  </section>
+  <section class="panel step">
+    <h2 class="ph"><b>Step 2</b> <small>signal mode</small></h2>
+    <div class="pad"><h3>What happens to each signal?</h3>
+      <p>Switch any time from My stations.</p>
+      <div class="opts two">
+        <button class="opt" data-act="pickMode" data-m="auto" aria-pressed="${D.mode === 'auto'}"><b>Auto-launch</b><span>Launches each signal right away. When launch capacity is full, signals go to your wallet as Signal NFTs.</span></button>
+        <button class="opt" data-act="pickMode" data-m="hold" aria-pressed="${D.mode === 'hold'}"><b>Hold signals</b><span>Every detection comes to you as a Signal NFT to launch, hold or sell.</span></button>
+      </div>
+    </div>
+  </section>
+  <section class="panel step">
+    <h2 class="ph"><b>Step 3</b> <small>${fmtSol(fee)} SOL to deploy</small></h2>
+    <div class="pad"><h3>${soldOut ? 'All stations are deployed' : `Deploy station #${n}`}</h3>
+      <p>${soldOut ? 'The genesis fleet is full. Stations now change hands on Tensor and Magic Eden, or you can rent one.' : 'The deploy price goes half to $SONAR buy and burn, half to operations. The tier unlock is burned.'}</p>
+      ${!W.addr ? `<button class="btn dark" data-act="wallet">Connect wallet to deploy</button>`
+        : `<button class="btn dark" data-act="deploy" ${can ? '' : 'disabled'}>Deploy station #${n}</button>
+           ${shortSol ? `<p class="warn" style="margin:12px 0 0">Not enough SOL in your wallet.</p>` : ''}
+           ${shortSon ? `<p class="warn" style="margin:12px 0 0">You need ${fmtTok(tr.unlock)} $SONAR for ${tr.name} sonar. Swap some from My stations.</p>` : ''}`}
+    </div>
+  </section></div>
+  <aside class="col">
+    <section class="panel"><h2 class="ph">${MINI} You get <small>after step 3</small></h2>
+      <div class="youget"><div class="frame">${stSVG(preview)}</div><div><b>#${Math.min(n, CFG.SUPPLY)}</b><span>${tr.name} sonar<br>${D.mode === 'auto' ? 'Auto-launch' : 'Hold signals'}</span></div></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.coin} Summary <small>what moves</small></h2>
+      <div class="rows">
+        ${kv('Deploy price', fmtSol(fee) + ' SOL')}
+        ${kv('Tier unlock (burned)', tr.unlock ? fmtTok(tr.unlock) + ' $SONAR' : 'Free')}
+        ${kv('Your share of fees', '60%')}
+        ${kv('Wallet SOL', fmtSol(S.wal.sol) + ' SOL')}
+        ${kv('Wallet $SONAR', fmtTok(S.wal.son))}
+      </div>
+    </section>
+  </aside></div>`;
+}
+
+function vRentals(){
+  const d = DURS[M.dur];
+  let list = S.st.filter(e => e.list);
+  if (M.tier !== 'all') list = list.filter(e => e.tier === +M.tier);
+  const sorters = { value: (a, b) => (b.list.share * hourly(b) / b.list.price) - (a.list.share * hourly(a) / a.list.price), price: (a, b) => a.list.price - b.list.price, rev: (a, b) => hourly(b) - hourly(a), share: (a, b) => b.list.share - a.list.share };
+  list.sort((a, b) => (!!a.rent - !!b.rent) || sorters[M.sort](a, b));
+  const segb = (key, val, label) => `<button class="chip" data-act="m" data-key="${key}" data-val="${val}" aria-pressed="${String(M[key]) === String(val)}">${label}</button>`;
+  const auctions = S.auc.map(a => {
+    const e = stById.get(a.st), mine = a.bidder === 'you', next = a.bidder ? r50(a.bid * 1.1) : a.bid;
+    return `<div class="auc"><div class="top2">${stSVG(e)}<div><h4>Station #${e.id}</h4><span class="small">${TIERS[e.tier].name} · ${fmtSol(hourly(e))} SOL/h</span></div></div>
+      <label>${mine ? 'Your bid is winning' : a.bidder ? 'Top bid' : 'Starting bid'}</label>
+      <div class="bid">${fmtTok(a.bid)} <small>$SONAR</small></div>
+      <p class="small" style="margin:0 0 12px">24 h rental, renter keeps ${Math.round(a.share * 100)}%. Ends in <span data-k="left:${a.ends}">${left(a.ends)}</span>.</p>
+      ${!W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet to bid</button>` : mine ? `<button class="btn sm" disabled>You’re the top bidder</button>` : `<button class="btn sm cy" data-act="bid" data-a="${a.a}" ${S.wal.son < next ? 'disabled' : ''}>Bid ${fmtTok(next)}</button>`}
+    </div>`; }).join('');
+  return `<section class="panel"><h2 class="ph">${ICO.gavel} Rental auctions <small>the best-earning stations go to the highest bidder</small></h2>
+    ${auctions ? `<div class="aucs">${auctions}</div>` : `<div class="empty">${MINI}<span>No auctions running right now.</span></div>`}
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.rent} Stations for rent <small>${list.length} listed</small></h2>
+    <div class="filters">
+      <div class="seg"><span>Rent for</span>${DURS.map((x, i) => segb('dur', i, x.name + (x.off ? ` (−${x.off * 100}%)` : ''))).join('')}</div>
+      <div class="seg"><span>Tier</span>${segb('tier','all','All')}${TIERS.map((f, i) => segb('tier', String(i), f.name)).join('')}</div>
+      <div class="seg"><span>Sort</span>${segb('sort','value','Best value')}${segb('sort','rev','Revenue')}${segb('sort','price','Price')}${segb('sort','share','Renter share')}</div>
+    </div>
+    ${list.length ? `<div class="lists">${list.map(e => { const cost = e.list.price * d.h * (1 - d.off), mine = isMine(e);
+      return `<div class="lcard">${stSVG(e)}<div><h4>#${e.id}${mine ? '<span class="tag cy">Yours</span>' : ''}</h4>
+        <dl><dt>Tier</dt><dd>${TIERS[e.tier].name}</dd><dt>Revenue</dt><dd>${fmtSol(hourly(e))} SOL/h</dd><dt>Renter share</dt><dd>${Math.round(e.list.share * 100)}%</dd><dt>Capacity</dt><dd>${e.cap} live</dd><dt>Price</dt><dd>${fmtTok(e.list.price)} /h</dd></dl>
+        ${e.rent ? `<button class="btn sm" disabled>Rented, back in ${left(e.rent.until)}</button>` : mine ? `<button class="btn sm" data-go="stations">Manage listing</button>`
+          : !W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet</button>`
+          : `<button class="btn sm cy" data-act="rent" data-id="${e.id}" ${S.wal.son < cost ? 'disabled' : ''}>Rent ${d.name} · ${fmtTok(cost)}</button>`}
+      </div></div>`; }).join('')}</div>` : `<div class="empty">${MINI}<span>No stations listed at this tier.</span></div>`}
+  </section>`;
+}
+
+function meter(str){ const on = Math.round(str / 10); return `<div class="meter" aria-label="Strength ${str} of 99">${Array.from({ length: 10 }, (_, i) => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>`; }
+function sigCard(g, mine){
+  const fr = Math.round(fresh(g) * 100), exp = g.t + CFG.SIG_TTL, fs = freeStation();
+  return `<div class="sig"><h4>$${esc(g.tick)}${mine && g.price ? '<span class="tag ghost">Listed</span>' : ''}</h4>
+    <p class="desc">${esc(g.desc)}</p>
+    <label>Strength ${g.str}</label>${meter(g.str)}
+    <dl style="margin-top:10px"><dt>Tier</dt><dd>${TIERS[g.tier].name}</dd><dt>Detected by</dt><dd>Station #${g.src}</dd><dt>Freshness</dt><dd>${fr}%</dd><dt>Expires in</dt><dd data-k="left:${exp}">${left(exp)}</dd>${g.price ? `<dt>Price</dt><dd>${fmtTok(g.price)} $SONAR</dd>` : `<dt>Est. value</dt><dd>${fmtTok(sigValue(g))} $SONAR</dd>`}</dl>
+    <div class="btns">${mine
+      ? `<button class="btn sm cy" data-act="sigLaunch" data-g="${g.id}" ${fs ? '' : 'disabled title="No station with free launch capacity"'}>${fs ? 'Launch via #' + fs.id : 'No free station'}</button>${g.price ? `<button class="btn sm" data-act="sigUnlist" data-g="${g.id}">Unlist</button>` : `<button class="btn sm" data-act="sigListOpen" data-g="${g.id}">Sell</button>`}`
+      : !W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet</button>` : `<button class="btn sm cy" data-act="sigBuy" data-g="${g.id}" ${S.wal.son < g.price ? 'disabled' : ''}>Buy · ${fmtTok(g.price)}</button>`}</div>
+  </div>`;
+}
+function vSignals(){
+  const mine = W.addr ? S.sig.filter(mySig).sort((a, b) => b.t - a.t) : [];
+  let list = S.sig.filter(g => !g.user && g.price > 0);
+  if (G.tier !== 'all') list = list.filter(g => g.tier === +G.tier);
+  const sorters = { str: (a, b) => b.str - a.str, fresh: (a, b) => b.t - a.t, price: (a, b) => a.price - b.price, value: (a, b) => sigValue(b) / b.price - sigValue(a) / a.price };
+  list.sort(sorters[G.sort]);
+  const segb = (key, val, label) => `<button class="chip" data-act="g" data-key="${key}" data-val="${val}" aria-pressed="${G[key] === val}">${label}</button>`;
+  return `<section class="panel"><h2 class="ph">${ICO.signal} Your signals <small>Signal NFTs your stations detected or you bought</small></h2>
+    ${!W.addr ? `<div class="empty">${MINI}<span>Connect a wallet to see your Signal NFTs.</span><button class="btn cy" data-act="wallet">Connect wallet</button></div>`
+      : mine.length ? `<div class="sigs">${mine.map(g => sigCard(g, true)).join('')}</div>`
+      : `<div class="empty">${MINI}<span>No signals yet. Stations in Hold signals mode, or with full launch capacity, send detections here. You can also buy one from the market.</span></div>`}
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.wave} Signal market <small>${list.length} for sale · launch before they go stale</small></h2>
+    <div class="filters">
+      <div class="seg"><span>Tier</span>${segb('tier','all','All')}${TIERS.map((f, i) => segb('tier', String(i), f.name)).join('')}</div>
+      <div class="seg"><span>Sort</span>${segb('sort','str','Strength')}${segb('sort','fresh','Freshest')}${segb('sort','value','Best value')}${segb('sort','price','Price')}</div>
+    </div>
+    ${list.length ? `<div class="sigs">${list.slice(0, 60).map(g => sigCard(g, false)).join('')}</div>` : `<div class="empty">${MINI}<span>No signals for sale at this tier.</span></div>`}
+  </section>`;
+}
+
+function vFleet(){
+  let list = S.st.slice();
+  if (Q.tier !== 'all') list = list.filter(e => e.tier === +Q.tier);
+  if (Q.show === 'mine') list = list.filter(isMine);
+  if (Q.show === 'live') list = list.filter(e => e.live > 0);
+  if (Q.show === 'rent') list = list.filter(e => e.list && !e.rent);
+  const sorters = { num: (a, b) => a.id - b.id, rev: (a, b) => b.life - a.life, coins: (a, b) => b.count - a.count, det: (a, b) => b.det - a.det };
+  list.sort(sorters[Q.sort]);
+  const segb = (key, val, label) => `<button class="chip" data-act="q" data-key="${key}" data-val="${val}" aria-pressed="${Q[key] === val}">${label}</button>`;
+  return `<section class="panel">
+    <h2 class="ph">${ICO.fleet} Fleet <small>every station deployed so far</small></h2>
+    <div class="filters">
+      <div class="seg"><span>Tier</span>${segb('tier','all','All')}${TIERS.map((f, i) => segb('tier', String(i), f.name)).join('')}</div>
+      <div class="seg"><span>Sort</span>${segb('sort','num','Number')}${segb('sort','rev','Revenue')}${segb('sort','coins','Coins launched')}${segb('sort','det','Signals detected')}</div>
+      <div class="seg"><span>Show</span>${segb('show','all','All')}${segb('show','live','Live now')}${segb('show','rent','For rent')}${segb('show','mine','Mine')}</div>
+    </div>
+  </section>
+  <section class="panel mt">
+    <h2 class="ph">${MINI} Stations <small>${list.length} shown</small></h2>
+    ${list.length ? `<div class="cards">${list.slice(0, Q.limit).map(e => `<button class="card" data-act="openSt" data-id="${e.id}">${stSVG(e)}<b>#${e.id}${isMine(e) ? '<span class="tag cy you">You</span>' : ''}</b><span class="meta">${TIERS[e.tier].name}${e.rent ? ' · rented' : e.list ? ' · for rent' : ''}<br>${e.count} coins · ${fmtSol(e.life)} SOL</span></button>`).join('')}</div>
+      ${list.length > Q.limit ? `<div class="more"><button class="btn sm" data-act="more">Show ${Math.min(72, list.length - Q.limit)} more</button></div>` : ''}`
+      : `<div class="empty">${MINI}<span>${Q.show === 'mine' ? 'You don’t own a station yet.' : 'Nothing matches these filters.'}</span>${Q.show === 'mine' ? '<button class="btn sm cy" data-go="deploy">Deploy a station</button>' : ''}</div>`}
+  </section>`;
+}
+
+function upRow(e, k){
+  const u = UP[k], l = e[k], max = l >= u.max, cost = u.cost(l);
+  return `<div class="up"><b>${u.name}<span class="pips" aria-label="Level ${l} of ${u.max}">${Array.from({ length: u.max }, (_, i) => `<i class="${i < l ? 'on' : ''}"></i>`).join('')}</span></b>
+    <small>${max ? 'Maxed out' : u.eff}</small>
+    <button class="btn sm" data-act="upgrade" data-id="${e.id}" data-k="${k}" ${max || S.wal.son < cost ? 'disabled' : ''}>${max ? 'Maxed' : 'Upgrade · ' + fmtTok(cost)}</button></div>`;
+}
+function vStations(){
+  if (!W.addr) return `<section class="panel"><h2 class="ph">${ICO.mine} My stations</h2>
+    <div class="empty">${MINI}<span>Connect a wallet to see the stations you own or rent and claim their fees.</span><button class="btn cy" data-act="wallet">Connect wallet</button></div></section>`;
+  const mine = mySt(), rented = myRent(), sigs = S.sig.filter(mySig).length;
+  const modeBtn = e => `<button class="btn sm" data-act="toggleMode" data-id="${e.id}">${e.mode === 'auto' ? 'Switch to hold signals' : 'Switch to auto-launch'}</button>`;
+  return `<section class="panel"><h2 class="ph">${ICO.mine} My stations <small>fees wait on each station until you claim them</small></h2>
+    <div class="kv5">
+      <div><label>Stations owned</label><b>${mine.length}</b></div>
+      <div><label>Stations rented</label><b>${rented.length}</b></div>
+      <div><label>Unclaimed</label><b class="g" data-k="myUn">${LIVE.myUn()}</b></div>
+      <div><label>Signal NFTs</label><b>${sigs}</b></div>
+      <div><label>$SONAR</label><b>${fmtTok(S.wal.son)}</b></div>
+    </div>
+    <div class="actions">
+      <button class="btn cy" data-act="claimAll" data-k="claimAll">${LIVE.claimAll()}</button>
+      <button class="btn" data-go="deploy">Deploy a station</button>
+      <button class="btn" data-go="signals">Your signals</button>
+      <button class="btn" data-act="buySon" ${S.wal.sol < 1 ? 'disabled' : ''}>Swap 1 SOL for $SONAR</button>
+    </div>
+  </section>
+  ${rented.length ? `<section class="panel mt"><h2 class="ph">${ICO.rent} Rented by you <small>your share settles to your wallet when the rental ends</small></h2>
+    ${rented.map(e => `<div class="strow"><div>${stSVG(e)}</div>
+      <div><h3>#${e.id} <span class="tag ghost">${TIERS[e.tier].name}</span></h3>
+        <div class="stats">
+          <div><label>Time left</label><b data-k="left:${e.rent.until}">${left(e.rent.until)}</b></div>
+          <div><label>You keep</label><b>${Math.round(e.rent.share * 100)}%</b></div>
+          <div><label>Your earnings</label><b data-k="rentUn:${e.id}">${LIVE.rentUn(e.id)}</b></div>
+          <div><label>Coins live</label><b>${e.live} / ${e.cap}</b></div>
+        </div>
+        <div class="btns">${modeBtn(e)}<button class="btn sm" data-act="openSt" data-id="${e.id}">Journal</button></div>
+      </div>
+      <div><p class="small" style="margin:0">Signals this station detects while you rent it are yours. Owner ${short(e.owner)} keeps the other ${100 - Math.round(e.rent.share * 100)}% of the operator share.</p></div></div>`).join('')}
+  </section>` : ''}
+  <section class="panel mt"><h2 class="ph">${MINI} Stations you own <small>${mine.length}</small></h2>
+    ${mine.length ? mine.map(e => `<div class="strow">
+      <div>${stSVG(e)}</div>
+      <div><h3>#${e.id} <span class="tag ghost">${TIERS[e.tier].name}</span></h3>
+        <div class="stats">
+          <div><label>Coins live</label><b>${e.live} / ${e.cap}</b></div>
+          <div><label>Signals detected</label><b>${e.det}</b></div>
+          <div><label>Unclaimed</label><b data-k="un:${e.id}">${LIVE.un(e.id)}</b></div>
+          <div><label>Owner earnings</label><b data-k="own:${e.id}">${LIVE.own(e.id)}</b></div>
+        </div>
+        <div class="btns">
+          <button class="btn sm cy" data-act="claim" data-id="${e.id}">Claim</button>
+          ${e.rent ? '' : modeBtn(e)}
+          <button class="btn sm" data-act="openSt" data-id="${e.id}">Journal</button>
+        </div>
+        <p class="small" style="margin:12px 0 0">Mode: ${e.mode === 'auto' ? 'auto-launch' : 'hold signals'}.</p>
+      </div>
+      <div>
+        <div class="rentbox">${e.rent ? `<b>Rented out</b><p>To ${short(e.rent.who)} for ${left(e.rent.until)} more. They keep ${Math.round(e.rent.share * 100)}% of the operator share; the rest still comes to you.</p>`
+          : e.list ? `<b>Listed for rent</b><p>${fmtTok(e.list.price)} $SONAR an hour, renter keeps ${Math.round(e.list.share * 100)}%. Payments settle to your wallet automatically.</p><div class="btns"><button class="btn sm" data-act="listOpen" data-id="${e.id}">Edit</button><button class="btn sm" data-act="unlist" data-id="${e.id}">Unlist</button></div>`
+          : `<b>Not listed</b><p>Rent it out by the hour, day or week and earn $SONAR without running it.</p><button class="btn sm cy" data-act="listOpen" data-id="${e.id}">List for rent</button>`}</div>
+        ${upRow(e, 'range')}${upRow(e, 'accuracy')}${upRow(e, 'cap')}
+        ${e.tier < 3 ? (() => { const c = TIERS[e.tier + 1].unlock - TIERS[e.tier].unlock; return `<div class="up"><b>Upgrade to ${TIERS[e.tier + 1].name} sonar</b><small>${TIERS[e.tier + 1].finds}. No guarantee it earns more.</small><button class="btn sm" data-act="tierUp" data-id="${e.id}" ${S.wal.son < c ? 'disabled' : ''}>Unlock · ${fmtTok(c)}</button></div>`; })() : `<div class="up"><b>Quantum sonar</b><small>This station is at the top tier.</small></div>`}
+      </div></div>`).join('')
+      : `<div class="empty">${MINI}<span>None yet. Deploy one and it lands here.</span><button class="btn sm cy" data-go="deploy">Deploy a station</button></div>`}
+  </section>`;
+}
+function listModal(id){
+  const e = stById.get(+id); if (!isMine(e)) return;
+  if (LST.id !== e.id) { LST.id = e.id; LST.share = e.list ? e.list.share : 0.7; LST.mult = 1; }
+  const p = r50(fair(e, LST.share) * LST.mult);
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="lt">
+    <h2 class="ph" id="lt">${ICO.rent} List station #${e.id} for rent <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad">
+      <label>Renter keeps</label>
+      <div class="seg" style="margin-bottom:16px">${[0.5,0.6,0.7,0.8].map(s => `<button class="chip" data-act="lsShare" data-v="${s}" aria-pressed="${LST.share === s}">${s * 100}%</button>`).join('')}</div>
+      <label>Hourly price</label>
+      <div class="seg" style="margin-bottom:16px">${[[0.8,'Fill fast'],[1,'Suggested'],[1.3,'Premium']].map(([m, t]) => `<button class="chip" data-act="lsMult" data-v="${m}" aria-pressed="${LST.mult === m}">${t}</button>`).join('')}</div>
+      <div class="rows" style="border:1px solid var(--rule);margin-bottom:16px">
+        ${kv('Price per hour', fmtTok(p) + ' $SONAR')}
+        ${kv('Per day / week', `${fmtTok(p * 24 * 0.9)} / ${fmtTok(p * 168 * 0.75)}`)}
+        ${kv('You receive', '90% of each payment')}
+        ${kv('Burned', '10% of each payment')}
+      </div>
+      <p class="small" style="margin:0 0 16px">The suggested price is based on this station’s recent revenue. Demand isn’t guaranteed: a station can sit unrented.</p>
+      <button class="btn cy wide" data-act="listSave" data-id="${e.id}" data-p="${p}">${e.list ? 'Update listing' : 'List station #' + e.id}</button>
+    </div></section>`);
+}
+function sigListModal(id){
+  const g = S.sig.find(x => x.id === +id); if (!mySig(g)) return;
+  if (SL.id !== g.id) { SL.id = g.id; SL.mult = 1; }
+  const p = r50(sigValue(g) * SL.mult);
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="st2">
+    <h2 class="ph" id="st2">${ICO.signal} Sell signal $${esc(g.tick)} <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad">
+      <p class="small" style="margin:0 0 14px">${esc(g.desc)}. Strength ${g.str}, ${Math.round(fresh(g) * 100)}% fresh.</p>
+      <label>Price</label>
+      <div class="seg" style="margin-bottom:16px">${[[0.8,'Sell fast'],[1,'Suggested'],[1.3,'Premium']].map(([m, t]) => `<button class="chip" data-act="slMult" data-v="${m}" aria-pressed="${SL.mult === m}">${t}</button>`).join('')}</div>
+      <div class="rows" style="border:1px solid var(--rule);margin-bottom:16px">
+        ${kv('Price', fmtTok(p) + ' $SONAR')}
+        ${kv('You receive', fmtTok(p * (1 - CFG.SIG_ROYALTY)) + ' $SONAR')}
+        ${kv('Royalty (burned)', '5%')}
+      </div>
+      <p class="small" style="margin:0 0 16px">Signals lose value as they age and expire 24 hours after detection.</p>
+      <button class="btn cy wide" data-act="sigListSave" data-g="${g.id}" data-p="${p}">List $${esc(g.tick)}</button>
+    </div></section>`);
+}
+
+function flywheel(){
+  const L = ['More stations deployed','More signals detected','More coins launched','More creator fees','More demand for stations','More $SONAR spent','More $SONAR burned'];
+  const cx = 380, cy = 180, rx = 290, ry = 135, n = L.length;
+  let s = `<svg viewBox="0 0 760 360" role="img" aria-label="The $SONAR flywheel"><ellipse class="ringe" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
+  L.forEach((_, i) => { const a = (i + 0.5) / n * 2 * Math.PI - Math.PI / 2, x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a), rot = Math.atan2(ry * Math.cos(a), -rx * Math.sin(a)) * 180 / Math.PI; s += `<path class="arr" d="M -7 -6 L 7 0 L -7 6 Z" transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(1)})"/>`; });
+  L.forEach((t, i) => { const a = i / n * 2 * Math.PI - Math.PI / 2, x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a); s += `<g class="node${i === 6 ? ' hot' : ''}"><rect x="${(x - 96).toFixed(1)}" y="${(y - 19).toFixed(1)}" width="192" height="38"/><text x="${x.toFixed(1)}" y="${(y + 5).toFixed(1)}" text-anchor="middle">${t}</text></g>`; });
+  return s + `</svg><ol>${L.map(t => `<li>${t}</li>`).join('')}</ol>`;
+}
+function vHow(){
+  const sq = Array.from({ length: 100 }, (_, i) => `<i class="${i < 60 ? 'sq-a' : i < 85 ? 'sq-b' : 'sq-c'}"></i>`).join('');
+  return `<section class="panel"><h2 class="ph">${ICO.how} How it works <small>stations detect signals and launch coins</small></h2>${stepsHTML()}</section>
+  <section class="panel mt"><h2 class="ph">${ICO.coin} Where every creator fee goes <small>100 squares, one per percent</small></h2>
+    <div class="split"><div class="squares" aria-hidden="true">${sq}</div></div>
+    <div class="splitkeys">
+      <div><span class="k"><i class="sq-a"></i>Operator</span><b>60%</b><p>Whoever runs the station. When it’s rented, owner and renter split this at the listed share.</p></div>
+      <div><span class="k"><i class="sq-b"></i>Buy and burn</span><b>25%</b><p>Buys $SONAR on the market and burns it.</p></div>
+      <div><span class="k"><i class="sq-c"></i>Operations</span><b>15%</b><p>Pays for the AI models, data feeds and the keeper.</p></div>
+    </div>
+  </section>
+  <div class="two mt">
+    <section class="panel"><h2 class="ph">${ICO.signal} Signal ownership <small>every detection is an NFT</small></h2>
+      <div class="pbody"><p>Each narrative a station detects becomes a Signal NFT with a strength reading. Launch it through any station you run, hold it, or sell it on the signal market.</p>
+      <p>Signals age. Their quality fades over about 12 hours and they expire after 24, so the market trades on timing as much as strength. Sales carry a 5% royalty that is burned.</p></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.rent} Station rentals <small>passive income for owners</small></h2>
+      <div class="pbody"><p>Owners list stations by the hour, day or week for $SONAR and choose how much of the operator share the renter keeps. 90% of each payment goes to the owner and 10% is burned.</p>
+      <p>The best-earning stations go to rental auctions, where the top bid wins a 24-hour rental. Payments and fee shares settle automatically.</p></div>
+    </section>
+  </div>
+  <section class="panel mt"><h2 class="ph">${ICO.wave} The flywheel <small>why signals, rentals and upgrades feed demand</small></h2><div class="fly">${flywheel()}</div></section>
+  <div class="two mt">
+    <section class="panel"><h2 class="ph">${ICO.scope} Station tiers</h2>
+      <div class="tw"><table><thead><tr><th>Station</th><th>Capability</th><th class="r">Unlock</th></tr></thead><tbody>
+      ${TIERS.map(d => `<tr><td><b>${d.name} sonar</b></td><td>${d.finds}</td><td class="r">${d.unlock ? fmtTok(d.unlock) : 'Free'}</td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="note" style="margin:0 18px 18px">Higher tiers change what a station detects. Quantum reads signal strength more accurately. None guarantee greater profit.</p>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.coin} Upgrades <small>paid in $SONAR, all burned</small></h2>
+      <div class="tw"><table><thead><tr><th>Upgrade</th><th>Effect</th><th class="r">Levels</th><th class="r">Cost</th></tr></thead><tbody>
+      <tr><td><b>Scanning range</b></td><td>+25% detection rate</td><td class="r">5</td><td class="r">5k × level</td></tr>
+      <tr><td><b>Detection accuracy</b></td><td>Sharper strength readings, +5% signal quality</td><td class="r">5</td><td class="r">6k × level</td></tr>
+      <tr><td><b>Launch capacity</b></td><td>+1 coin live at once</td><td class="r">3</td><td class="r">20k × level</td></tr>
+      </tbody></table></div>
+    </section>
+  </div>`;
+}
+
+const DOCS = [
+  ['overview','Overview', () => `<p>Sonar is a Solana launchpad where the launcher is a machine. Each <strong>sonar station</strong> is an NFT. It scans the Solana ecosystem for narratives, launches coins on pump.fun with itself as the creator, and pays 60% of those coins’ creator fees to whoever is running it.</p>
+    <p>Every narrative a station detects becomes a <strong>Signal NFT</strong>. Launch it, hold it or trade it. Stations themselves can be run, rented out, or rented from someone else, and trade on Tensor and Magic Eden.</p>`],
+  ['deploying','Deploying', () => `<p>Choose a tier and a signal mode, then pay the deploy price in SOL. It rises evenly from 0.2 SOL for #1 to 1.2 SOL for #1,111: <code>0.2 + 1.0 × (n − 1) / 1110</code>. Half buys and burns $SONAR, half funds operations. Tier unlocks are paid in $SONAR and burned.</p>
+    <div class="tw"><table><thead><tr><th>Station</th><th class="r">Deploy price</th></tr></thead><tbody>${[1,250,500,750,1111].map(n => `<tr><td>#${n.toLocaleString('en-US')}</td><td class="r">${mintPrice(n).toFixed(3)} SOL</td></tr>`).join('')}</tbody></table></div>`],
+  ['tiers','Station tiers', () => `<div class="tw"><table><thead><tr><th>Station</th><th>What it scans</th><th class="r">Unlock</th></tr></thead><tbody>${TIERS.map(d => `<tr><td><strong>${d.name} sonar</strong></td><td>${d.blurb}</td><td class="r">${d.unlock ? fmtTok(d.unlock) : 'Free'}</td></tr>`).join('')}</tbody></table></div>
+    <p>Deeper tiers detect less often and their coins vary more. Quantum combines several models, so its strength readings are more reliable. Across the fleet, average earnings are about the same at every tier.</p>`],
+  ['signals','Signal NFTs', () => `<p>Every detection mints a Signal NFT to the station’s operator. It carries the ticker, what was detected, the tier and a <strong>strength</strong> reading from 1 to 99. Strength is the station’s estimate of how strong the narrative is; better accuracy makes it more reliable, but it is never certain.</p>
+    <p>In <strong>auto-launch</strong> mode a station launches each signal at once, and keeps any it can’t launch because its capacity is full. In <strong>hold signals</strong> mode every signal comes to you.</p>
+    <h4>Freshness</h4>
+    <p>A signal’s quality fades as it ages, losing about 63% over 12 hours, and it expires 24 hours after detection. Launch it through any station you run with free capacity, or sell it on the signal market. Each sale burns a 5% royalty.</p>`],
+  ['launch','Launch rules', () => `<p>Before any coin launches, its name, image and description must pass the launch rules:</p>
+    <ul><li>No real people’s names or likeness, and no implied endorsement.</li><li>No existing brands, and no ticker that is already live on pump.fun.</li><li>No promises of returns.</li><li>Every description says which station launched the coin.</li></ul>`],
+  ['fees','Fees', () => `<p>pump.fun pays each coin’s creator fees to its station’s address, on the bonding curve and after graduation to PumpSwap. A keeper collects them and the program splits them:</p>
+    <div class="tw"><table><thead><tr><th>To</th><th class="r">Share</th></tr></thead><tbody><tr><td>The station’s operator</td><td class="r">60%</td></tr><tr><td>$SONAR buy and burn</td><td class="r">25%</td></tr><tr><td>Operations</td><td class="r">15%</td></tr></tbody></table></div>`],
+  ['rentals','Rental market', () => `<p>Owners list stations by the hour, day or week, priced in $SONAR. A day is 10% cheaper per hour, a week 25% cheaper. The owner sets how much of the operator share the renter keeps: 50%, 60%, 70% or 80%. Signals detected during a rental belong to the renter.</p>
+    <p>Each payment settles when the rental starts: 90% to the owner, 10% burned. When it ends, the renter’s share of fees settles to their wallet automatically.</p>
+    <h4>Rental auctions</h4><p>The stations with the highest recent revenue go to auction for a 24-hour rental with a 70% renter share. Each bid must beat the last by 10%, and outbid bidders are refunded at once.</p>`],
+  ['upgrades','Upgrades', () => `<p><strong>Scanning range</strong> raises the detection rate by 25% a level, up to five. <strong>Detection accuracy</strong> sharpens strength readings and lifts signal quality by 5% a level, up to five. <strong>Launch capacity</strong> sets how many coins can be live at once, up to three. All are paid in $SONAR and burned.</p>`],
+  ['token','$SONAR', () => `<p>$SONAR is the pad’s token, launched on pump.fun. It pays for rentals, signals, upgrades and tier unlocks. 25% of every coin’s creator fees, half of every deploy, 10% of every rental and 5% of every signal sale buy it back or burn it.</p>`],
+  ['faq','FAQ', () => [
+      ['Who is the creator of the coins?','The station. Its address is set as the coin’s creator on pump.fun, and the fee split is locked in the same transaction.'],
+      ['Do I need a station to use a signal?','You need a station you run to launch one: owned or rented. Anyone can buy and sell signals.'],
+      ['Is a high-strength signal a sure thing?','No. Strength is an estimate. Better accuracy makes it more reliable, but strong signals still flop.'],
+      ['Does a higher tier earn more?','Not on average. Tiers change what a station finds and how much results swing.'],
+      ['What happens when I sell my station?','Its journal, any unclaimed fees and any active listing go with it. Claim before you sell.']
+    ].map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')],
+  ['risks','Risks', () => `<ul><li>Most coins on pump.fun stop trading within days. A station whose coins are quiet earns nothing.</li>
+    <li>Signals are AI estimates. Strength, tier and upgrades don’t guarantee profit, and signals can expire unsold.</li>
+    <li>Rental demand isn’t guaranteed. A rented station can earn less than the rent paid.</li>
+    <li>A station’s market price can fall far below what was paid to deploy it.</li>
+    <li>pump.fun can change its fee rates or creator fee program at any time.</li>
+    <li>Smart contracts and autonomous agents can have bugs even after testing.</li></ul>
+    <p class="small">Stations, signals, $SONAR and every coin launched here can go to zero. Nothing on this site is financial advice; only put in what you can afford to lose.</p>`]
+];
+function vDocs(){
+  return `<div class="docs"><nav class="panel toc" aria-label="Docs contents"><h2 class="ph">${ICO.docs} Docs <small>contents</small></h2>
+    <ol>${DOCS.map((d, i) => `<li><button data-act="docjump" data-id="${d[0]}"><span>${pad2(i + 1)}</span>${d[1]}</button></li>`).join('')}</ol></nav>
+    <div class="col">${DOCS.map(d => `<section class="panel doc" id="doc-${d[0]}"><h2 class="ph">${d[1]}</h2><div class="body">${d[2]()}</div></section>`).join('')}</div></div>`;
+}
+function stModal(id){
+  const e = stById.get(+id); if (!e) return;
+  const coins = e.j.map(i => coinById.get(i)).filter(Boolean);
+  modal(`<section class="panel modal wide" role="dialog" aria-modal="true" aria-labelledby="rt">
+    <h2 class="ph" id="rt">${MINI} Station #${e.id} <small>${TIERS[e.tier].name} sonar${isMine(e) ? ', yours' : isRenting(e) ? ', rented by you' : ''}</small><button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="youget"><div class="frame" style="width:170px">${stSVG(e)}</div>
+      <div class="stats" style="flex:1">
+        <div><label>Owner</label><b>${isMine(e) ? 'You' : short(e.owner)}</b></div>
+        <div><label>Status</label><b>${e.rent ? 'Rented, ' + left(e.rent.until) + ' left' : e.list ? 'For rent' : 'Run by owner'}</b></div>
+        <div><label>Signals detected</label><b>${e.det}</b></div>
+        <div><label>Coins launched</label><b>${e.count}</b></div>
+        <div><label>Operator revenue</label><b>${fmtSol(e.life)} SOL</b></div>
+        <div><label>Upgrades</label><b>Range ${e.range}, accuracy ${e.accuracy}, capacity ${e.cap}</b></div>
+      </div></div>
+    <h2 class="ph" style="border-top:1px solid var(--rule)">${ICO.docs} Journal <small>recent coins</small></h2>
+    ${coins.length ? `<div class="tw"><table><thead><tr><th>Coin</th><th>Signal</th><th class="r">Strength</th><th>Status</th><th class="r">Fees</th></tr></thead><tbody>
+      ${coins.slice(0, 40).map(c => `<tr><td><b>$${esc(c.tick)}</b></td><td><span class="small">${esc(c.desc)}</span></td><td class="r">${c.str}</td><td>${c.grad ? 'Graduated' : c.alive ? 'Live' : 'Quiet'}</td><td class="r">${fmtSol(c.fees)} SOL</td></tr>`).join('')}
+    </tbody></table></div>` : `<div class="empty">${MINI}<span>No coins yet. It’s listening.</span></div>`}
+  </section>`);
+}
+
+/* ---------- render ---------- */
+let lastVer = -1, lastTab = '', lastRender = 0;
+const VIEWS = { scope: vScope, deploy: vDeploy, rentals: vRentals, signals: vSignals, fleet: vFleet, stations: vStations, how: vHow, docs: vDocs };
+function render(force){
+  const now = performance.now();
+  const dynamic = !(tab === 'how' || tab === 'docs');
+  if (!force && tab === lastTab && (!dynamic || S.ver === lastVer || now - lastRender < 1500)) return;
+  lastVer = S.ver; lastTab = tab; lastRender = now;
+  const y = window.scrollY;
+  $('#view').innerHTML = VIEWS[tab]();
+  window.scrollTo(0, y);
+}
+function paintTabs(){ $('#tabs').innerHTML = TABS.map(([k, label, icon], i) => `<a href="#${k}"${tab === k ? ' aria-current="page"' : ''}>${icon}<span>${label}</span><em>${i + 1}</em></a>`).join(''); }
+function updateLive(){ document.querySelectorAll('[data-k]').forEach(el => { const [k, a] = el.dataset.k.split(':'); const f = LIVE[k]; if (!f) return; const v = f(a); if (el.textContent !== v) el.textContent = v; }); }
+function route(){ const h = location.hash.replace('#', ''); tab = VIEWS[h] ? h : 'scope'; paintTabs(); render(true); updateLive(); }
+
+/* ---------- overlays ---------- */
+let lastFocus = null;
+function modal(html){ if (!$('#overlay').innerHTML) lastFocus = document.activeElement; $('#overlay').innerHTML = `<div class="scrim" data-act="scrim">${html}</div>`; const f = $('#overlay').querySelector('[aria-pressed="true"],button,a'); f && f.focus(); }
+function closeModal(){ $('#overlay').innerHTML = ''; LST.id = 0; SL.id = 0; lastFocus && lastFocus.focus && lastFocus.focus(); }
+function toast(msg){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; const box = $('#toasts'); box.appendChild(t); while (box.children.length > 3) box.firstChild.remove(); setTimeout(() => t.remove(), 3800); }
+
+/* ---------- actions ---------- */
+function doDeploy(){
+  const n = S.st.length + 1; if (!W.addr || n > CFG.SUPPLY) return;
+  const fee = mintPrice(n), tr = TIERS[D.tier];
+  if (S.wal.sol < fee || S.wal.son < tr.unlock) return;
+  S.wal.sol -= fee; S.wal.son -= tr.unlock;
+  S.burnSol += fee * 0.5; S.burned += fee * 0.5 / price() + tr.unlock; S.ops += fee * 0.5;
+  const e = { id: n, owner: W.addr, tier: D.tier, range: 1, accuracy: 1, cap: 1, mode: D.mode, live: 0, count: 0, det: 0, unclaimed: 0, rentUn: 0, own: 0, life: 0, rv: 0, j: [], user: true, list: null, rent: null, t: S.t };
+  S.st.push(e); stById.set(e.id, e); S.ver++; save();
+  toast(`Station #${n} deployed. It starts scanning now.`);
+  location.hash = '#stations';
+}
+function claimOwner(e){ if (!isMine(e) || e.unclaimed <= 0) return 0; const v = e.unclaimed; S.wal.sol += v; e.unclaimed = 0; return v; }
+function claimRent(e){ if (!isRenting(e) || e.rentUn <= 0) return 0; const v = e.rentUn; S.wal.sol += v; e.rentUn = 0; return v; }
+const after = () => { S.ver++; render(true); updateLive(); };
+
+document.addEventListener('click', async ev => {
+  const go = ev.target.closest('[data-go]');
+  if (go) { if ($('#overlay').innerHTML) closeModal(); location.hash = '#' + go.dataset.go; return; }
+  const a = ev.target.closest('[data-act]');
+  if (!a) { if (!ev.target.closest('.walletcell')) $('#walletMenu').hidden = true; return; }
+  const act = a.dataset.act;
+  if (act === 'scrim') { if (ev.target === a) closeModal(); return; }
+  switch (act) {
+    case 'close': closeModal(); break;
+    case 'wallet':
+      if (W.addr && a.id === 'walletBtn') { const m = $('#walletMenu'); paintWallet(); m.hidden = !m.hidden; }
+      else openWalletModal();
+      break;
+    case 'pickWallet': {
+      const entry = W.list[+a.dataset.i];
+      a.disabled = true; const em = a.querySelector('em'); if (em) em.textContent = 'Approve in wallet…';
+      try { await connectEntry(entry, false); closeModal(); toast(`Connected ${short(W.addr)}`); }
+      catch (err) { a.disabled = false; if (em) em.textContent = 'Detected'; toast(err && err.message && /reject|denied|cancel/i.test(err.message) ? 'Connection request was declined in the wallet.' : 'Couldn’t connect. Unlock the wallet and try again.'); }
+      break; }
+    case 'guestWallet': setWallet(randAddr(Math.random), null); closeModal(); toast('Connected as guest'); break;
+    case 'disconnect': clearWallet(); toast('Wallet disconnected'); break;
+    case 'copyAddr': try { await navigator.clipboard.writeText(W.addr); toast('Address copied'); } catch (e) { toast(W.addr); } break;
+    case 'pickTier': D.tier = +a.dataset.i; render(true); break;
+    case 'pickMode': D.mode = a.dataset.m; render(true); break;
+    case 'deploy': doDeploy(); break;
+    case 'q': Q[a.dataset.key] = a.dataset.val; Q.limit = 72; render(true); break;
+    case 'm': M[a.dataset.key] = a.dataset.key === 'dur' ? +a.dataset.val : a.dataset.val; render(true); break;
+    case 'g': G[a.dataset.key] = a.dataset.val; render(true); break;
+    case 'more': Q.limit += 72; render(true); break;
+    case 'openSt': stModal(a.dataset.id); break;
+    case 'claim': { const v = claimOwner(stById.get(+a.dataset.id)); toast(v > 0 ? `Claimed ${fmtSol(v)} SOL` : 'Nothing to claim yet'); after(); break; }
+    case 'claimAll': { const v = mySt().reduce((s, e) => s + claimOwner(e), 0) + myRent().reduce((s, e) => s + claimRent(e), 0); toast(v > 0 ? `Claimed ${fmtSol(v)} SOL` : 'Nothing to claim yet'); after(); break; }
+    case 'buySon': if (S.wal.sol >= 1) { const t = 1 / price(); S.wal.sol -= 1; S.wal.son += t; toast(`Swapped 1 SOL for ${fmtTok(t)} $SONAR`); after(); } break;
+    case 'upgrade': { const e = stById.get(+a.dataset.id), k = a.dataset.k; if (!isMine(e) || e[k] >= UP[k].max) break; const c = UP[k].cost(e[k]); if (S.wal.son < c) break; S.wal.son -= c; S.burned += c; e[k]++; toast(`${UP[k].name} is now level ${e[k]}. ${fmtTok(c)} $SONAR burned.`); after(); break; }
+    case 'tierUp': { const e = stById.get(+a.dataset.id); if (!isMine(e) || e.tier >= 3) break; const c = TIERS[e.tier + 1].unlock - TIERS[e.tier].unlock; if (S.wal.son < c) break; S.wal.son -= c; S.burned += c; e.tier++; toast(`Station #${e.id} is now a ${TIERS[e.tier].name} sonar. ${fmtTok(c)} $SONAR burned.`); after(); break; }
+    case 'toggleMode': { const e = stById.get(+a.dataset.id); if (!(isMine(e) && !e.rent) && !isRenting(e)) break; e.mode = e.mode === 'auto' ? 'hold' : 'auto'; toast(`Station #${e.id}: ${e.mode === 'auto' ? 'auto-launch' : 'hold signals'}`); render(true); break; }
+    case 'listOpen': LST.id = 0; listModal(a.dataset.id); break;
+    case 'lsShare': LST.share = +a.dataset.v; listModal(LST.id); break;
+    case 'lsMult': LST.mult = +a.dataset.v; listModal(LST.id); break;
+    case 'listSave': { const e = stById.get(+a.dataset.id); if (!isMine(e)) break; e.list = { share: LST.share, price: +a.dataset.p, k: LST.mult }; closeModal(); toast(`Station #${e.id} listed at ${fmtTok(e.list.price)} $SONAR an hour`); after(); break; }
+    case 'unlist': { const e = stById.get(+a.dataset.id); if (!isMine(e)) break; e.list = null; toast(`Station #${e.id} unlisted`); after(); break; }
+    case 'rent': {
+      const e = stById.get(+a.dataset.id), d = DURS[M.dur]; if (!W.addr || !e || !e.list || e.rent || isMine(e) || inAuction(e)) break;
+      const cost = e.list.price * d.h * (1 - d.off); if (S.wal.son < cost) break;
+      S.wal.son -= cost; startRent(e, W.addr, true, d.h, cost, e.list.share);
+      toast(`You’re running station #${e.id} for ${d.name}. You keep ${Math.round(e.list.share * 100)}% of the operator share.`); location.hash = '#stations'; after(); break; }
+    case 'bid': {
+      const au = S.auc.find(x => x.a === +a.dataset.a); if (!au || !W.addr || au.bidder === 'you') break;
+      const next = au.bidder ? r50(au.bid * 1.1) : au.bid; if (S.wal.son < next) break;
+      S.wal.son -= next; au.bid = next; au.bidder = 'you'; toast(`You bid ${fmtTok(next)} $SONAR on station #${au.st}`); after(); break; }
+    case 'sigBuy': {
+      const g = S.sig.find(x => x.id === +a.dataset.g); if (!g || g.user || !W.addr || S.wal.son < g.price) break;
+      S.wal.son -= g.price; S.burned += g.price * CFG.SIG_ROYALTY; g.user = true; g.owner = W.addr; g.price = 0;
+      toast(`You bought signal $${g.tick}. Launch it before it goes stale.`); after(); break; }
+    case 'sigLaunch': {
+      const g = S.sig.find(x => x.id === +a.dataset.g), e = freeStation(); if (!mySig(g) || !e) break;
+      S.sig = S.sig.filter(x => x !== g); launch(e, g); after(); break; }
+    case 'sigListOpen': SL.id = 0; sigListModal(a.dataset.g); break;
+    case 'slMult': SL.mult = +a.dataset.v; sigListModal(SL.id); break;
+    case 'sigListSave': { const g = S.sig.find(x => x.id === +a.dataset.g); if (!mySig(g)) break; g.price = +a.dataset.p; closeModal(); toast(`Signal $${g.tick} listed for ${fmtTok(g.price)} $SONAR`); after(); break; }
+    case 'sigUnlist': { const g = S.sig.find(x => x.id === +a.dataset.g); if (!mySig(g)) break; g.price = 0; toast(`Signal $${g.tick} unlisted`); after(); break; }
+    case 'docjump': { const el = document.getElementById('doc-' + a.dataset.id); el && el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); break; }
+  }
+  if (act !== 'wallet' && !a.closest('#walletMenu')) $('#walletMenu').hidden = true;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#overlay').innerHTML) closeModal(); $('#walletMenu').hidden = true; } });
+window.addEventListener('hashchange', route);
+
+/* ---------- boot ---------- */
+load();
+S.speed = 60;
+route();
+paintWallet();
+setTimeout(eagerConnect, 500);
+let lastTick = performance.now(), lastSave = 0;
+setInterval(() => {
+  const now = performance.now(), dt = Math.min(2, (now - lastTick) / 1000); lastTick = now;
+  if (S.speed > 0) advance(S.speed * dt / 60);
+  updateLive(); render(false);
+  if (now - lastSave > 5000) { save(); lastSave = now; }
+}, 250);
+window.addEventListener('pagehide', save);
+</script>
+</body>
+</html>
